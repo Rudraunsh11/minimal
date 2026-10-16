@@ -87,6 +87,29 @@
       form { flex-direction: column; }
       section { padding: 20px; }
     }
+        /* Place the task and its Delete button beside each other. */
+    li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    li label {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .delete-task {
+      flex-shrink: 0;
+      min-height: 44px;
+      padding: 10px;
+      background: transparent;
+      color: #805044;
+    }
+
+    .delete-task:hover {
+      background: #faf0ec;
+    }
   </style>
 </head>
 <body>
@@ -246,29 +269,6 @@
     });
 
     renderTasks();
-        /* Place the task and its Delete button beside each other. */
-    li {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    li label {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .delete-task {
-      flex-shrink: 0;
-      min-height: 44px;
-      padding: 10px;
-      background: transparent;
-      color: #805044;
-    }
-
-    .delete-task:hover {
-      background: #faf0ec;
-    }
   </script>
 </body>
 </html>
