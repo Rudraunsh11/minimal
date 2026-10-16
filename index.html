@@ -124,6 +124,14 @@
       .task-actions { margin-left: auto; margin-bottom: 8px; }
       .task-editor input { flex-basis: auto; }
     }
+    .notes-label { display: block; margin-bottom: 10px; color: #62685f; }
+    #quick-note {
+      display: block; width: 100%; min-height: 180px;
+      resize: vertical; padding: 16px; font: inherit; line-height: 1.7;
+      color: #292e29; background: #fbfcf8;
+      border: 1px solid #a4af9a; border-radius: 10px;
+    }
+    .notes-footer { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
   </style>
 </head>
 <body>
@@ -156,6 +164,19 @@
       <p class="hint" id="status" role="status">
         Add your first priority above.
       </p>
+    </section>
+
+    <section aria-labelledby="notes-heading">
+      <h2 id="notes-heading">A place to clear your mind</h2>
+      <label class="notes-label" for="quick-note">Quick notes</label>
+      <textarea id="quick-note" rows="6" maxlength="20000"
+        placeholder="An idea, a thought, something to remember…"
+        aria-describedby="note-status note-help"></textarea>
+      <div class="notes-footer">
+        <p class="hint" id="note-status" role="status">Ready for your thoughts.</p>
+        <p class="hint" id="note-count">0 / 20,000 characters</p>
+      </div>
+      <p class="hint" id="note-help">One ongoing scratchpad. Saves automatically in this browser only.</p>
     </section>
 
    <p class="hint" id="storage-message" role="status">
@@ -346,6 +367,42 @@
     });
 
     renderTasks();
+
+    // Notes use a separate key, so writing here never changes your tasks.
+    const noteField = document.getElementById("quick-note");
+    const noteStatus = document.getElementById("note-status");
+    const noteCount = document.getElementById("note-count");
+    const noteKey = "minimal.quickNote.v1";
+    let noteLoaded = false;
+
+    function updateNoteCount() {
+      noteCount.textContent =
+        noteField.value.length.toLocaleString() + " / 20,000 characters";
+    }
+
+    try {
+      const savedNote = localStorage.getItem(noteKey);
+      noteField.value = savedNote === null ? "" : savedNote;
+      noteLoaded = true;
+      if (savedNote !== null) noteStatus.textContent = "Loaded from this browser.";
+    } catch (error) {
+      noteField.readOnly = true;
+      noteStatus.textContent =
+        "Notes storage is unavailable. Reload when browser storage is available.";
+    }
+    updateNoteCount();
+
+    noteField.addEventListener("input", function () {
+      updateNoteCount();
+      if (!noteLoaded) return;
+      try {
+        localStorage.setItem(noteKey, noteField.value);
+        noteStatus.textContent = "Saved in this browser.";
+      } catch (error) {
+        noteStatus.textContent =
+          "Not saved. Copy your note somewhere safe before closing or refreshing.";
+      }
+    });
   </script>
 </body>
 </html>
