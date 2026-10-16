@@ -110,6 +110,20 @@
     .delete-task:hover {
       background: #faf0ec;
     }
+    .task-actions { display: flex; gap: 4px; flex-shrink: 0; }
+    .edit-task, .cancel-edit {
+      background: transparent; color: #42573b;
+      min-height: 44px; padding: 10px;
+    }
+    .edit-task:hover, .cancel-edit:hover { background: #edf0e9; }
+    .task-editor { width: 100%; padding: 12px 0; flex-wrap: wrap; }
+    .task-editor input { flex-basis: 180px; }
+    @media (max-width: 480px) {
+      li { flex-wrap: wrap; gap: 0; }
+      li label { flex-basis: 100%; }
+      .task-actions { margin-left: auto; margin-bottom: 8px; }
+      .task-editor input { flex-basis: auto; }
+    }
   </style>
 </head>
 <body>
@@ -246,8 +260,71 @@
           input.focus();
         });
 
+        const editButton = document.createElement("button");
+        editButton.type = "button";
+        editButton.className = "edit-task";
+        editButton.textContent = "Edit";
+        editButton.setAttribute("aria-label", `Edit ${task.text}`);
+
+        editButton.addEventListener("click", function () {
+          const editor = document.createElement("form");
+          editor.className = "task-editor";
+          const field = document.createElement("input");
+          field.type = "text";
+          field.value = task.text;
+          field.maxLength = 160;
+          field.required = true;
+          field.setAttribute("aria-label", "Task name");
+
+          const saveButton = document.createElement("button");
+          saveButton.type = "submit";
+          saveButton.textContent = "Save";
+          const cancelButton = document.createElement("button");
+          cancelButton.type = "button";
+          cancelButton.className = "cancel-edit";
+          cancelButton.textContent = "Cancel";
+
+          function closeEditor() {
+            item.replaceChildren(label, actions);
+            editButton.focus();
+          }
+
+          editor.addEventListener("submit", function (event) {
+            event.preventDefault();
+            const name = field.value.trim();
+            if (!name) {
+              field.setCustomValidity("Enter a task name.");
+              field.reportValidity();
+              return;
+            }
+            task.text = name;
+            text.textContent = name;
+            editButton.setAttribute("aria-label", `Edit ${name}`);
+            deleteButton.setAttribute("aria-label", `Delete ${name}`);
+            saveTasks();
+            closeEditor();
+          });
+          field.addEventListener("input", function () {
+            field.setCustomValidity("");
+          });
+          editor.addEventListener("keydown", function (event) {
+            if (event.key === "Escape") {
+              event.preventDefault();
+              closeEditor();
+            }
+          });
+          cancelButton.addEventListener("click", closeEditor);
+          editor.append(field, saveButton, cancelButton);
+          item.replaceChildren(editor);
+          field.focus();
+          field.select();
+        });
+
+        const actions = document.createElement("div");
+        actions.className = "task-actions";
+        actions.append(editButton, deleteButton);
         label.append(checkbox, text);
-        item.append(label, deleteButton);
+        item.append(label, actions);
         list.append(item);
       });
 
