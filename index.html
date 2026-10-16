@@ -121,14 +121,13 @@
       </p>
     </section>
 
-    <p class="hint">
-      Learning prototype · Tasks reset when you refresh this page.
-      Permanent saving comes next.
+   <p class="hint" id="storage-message" role="status">
+      Tasks are stored in this browser only. No account sync yet.
     </p>
   </main>
 
   <script>
-    // Show today's date using the visitor's device.
+     <script>
     document.getElementById("date").textContent =
       new Intl.DateTimeFormat(undefined, {
         weekday: "long",
@@ -140,36 +139,115 @@
     const input = document.getElementById("task-input");
     const list = document.getElementById("task-list");
     const status = document.getElementById("status");
+    const storageMessage = document.getElementById("storage-message");
 
-    function updateProgress() {
-      const total = list.children.length;
-      const done = list.querySelectorAll("input:checked").length;
-      status.textContent = `${done} of ${total} priorities complete`;
+    // This name identifies our saved checklist in this browser.
+    const storageKey = "minimal.tasks.v1";
+    let tasks = [];
+    let canSave = true;
+
+    // Read previously saved tasks when the page opens.
+    try {
+      const saved = localStorage.getItem(storageKey);
+
+      if (saved !== null) {
+        const parsed = JSON.parse(saved);
+
+        const valid = Array.isArray(parsed) && parsed.every(task =>
+          task !== null &&
+          typeof task === "object" &&
+          typeof task.text === "string" &&
+          typeof task.done === "boolean"
+        );
+
+        if (!valid) throw new Error("Invalid task data");
+        tasks = parsed;
+      }
+    } catch (error) {
+      canSave = false;
+      storageMessage.textContent =
+        "Saved tasks could not be read. Changes will last only " +
+        "until you close or refresh this page.";
     }
 
-    // Turn each submitted task into a labelled checkbox.
+    function saveTasks() {
+      if (!canSave) return;
+
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(tasks));
+        storageMessage.textContent =
+          "Saved in this browser only. No account sync yet.";
+      } catch (error) {
+        storageMessage.textContent =
+          "Your latest changes could not be saved. " +
+          "Keep this page open to avoid losing them.";
+      }
+    }
+
+    function updateProgress() {
+      const done = tasks.filter(task => task.done).length;
+
+      status.textContent = tasks.length
+        ? `${done} of ${tasks.length} priorities complete`
+        : "Add your first priority above.";
+    }
+
+    function renderTasks() {
+      list.replaceChildren();
+
+      tasks.forEach(task => {
+        const item = document.createElement("li");
+        const label = document.createElement("label");
+        const checkbox = document.createElement("input");
+        const text = document.createElement("span");
+        const deleteButton = document.createElement("button");
+
+        checkbox.type = "checkbox";
+        checkbox.checked = task.done;
+        text.textContent = task.text;
+
+        checkbox.addEventListener("change", function () {
+          task.done = checkbox.checked;
+          saveTasks();
+          updateProgress();
+        });
+
+        deleteButton.type = "button";
+        deleteButton.className = "delete-task";
+        deleteButton.textContent = "Delete";
+        deleteButton.setAttribute("aria-label", `Delete ${task.text}`);
+
+        deleteButton.addEventListener("click", function () {
+          tasks = tasks.filter(entry => entry !== task);
+          saveTasks();
+          renderTasks();
+          input.focus();
+        });
+
+        label.append(checkbox, text);
+        item.append(label, deleteButton);
+        list.append(item);
+      });
+
+      updateProgress();
+    }
+
     form.addEventListener("submit", function (event) {
       event.preventDefault();
-      const task = input.value.trim();
-      if (!task) return;
 
-      const item = document.createElement("li");
-      const label = document.createElement("label");
-      const checkbox = document.createElement("input");
-      const text = document.createElement("span");
+      const text = input.value.trim();
+      if (!text) return;
 
-      checkbox.type = "checkbox";
-      text.textContent = task;
-      checkbox.addEventListener("change", updateProgress);
-
-      label.append(checkbox, text);
-      item.append(label);
-      list.append(item);
+      tasks.push({ text: text, done: false });
+      saveTasks();
+      renderTasks();
 
       input.value = "";
       input.focus();
-      updateProgress();
     });
+
+    renderTasks();
+  </script>
   </script>
 </body>
 </html>
