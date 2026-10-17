@@ -62,3 +62,11 @@ Settings → Export backup downloads your records as a JSON file. Keep it somewh
 Data belongs to the current browser and website address. Moving from a local file to the online site does not transfer it automatically: export at the old address, then restore at the new one. OpenAI sign-in grants access to the private site; it does not sync your logs across devices.
 
 Hints are shown initially. Use **Hide hints** on Today or in Settings once you are comfortable. You can turn them back on in Settings. Essential data limitations stay visible even when hints are hidden.
+
+## Rewards and Training
+
+Open **Rewards** to see your streak, level, monthly goals and badges. Completing a task, checking a habit, logging learning, recording steps or finishing training can keep a streak. Tag school or college tasks **Academic** to count them toward the academic challenge. Use **Log learning** for a topic and minutes; **Log steps** replaces the chosen day's total with the total shown on your device.
+
+Open **Training → Start workout**, name your session, then **Add exercise**. Set weights and reps independently for each row and tick each completed set. These edits save on this browser. You can navigate away or refresh and resume. **Finish workout → Save completed workout** adds only checked sets to history. From history, choose **Save as routine**; start it next time with all completion checkboxes reset. Rest timers work while this page is open and reset on refresh.
+
+Unfinished note drafts now save on this device while you type. Reopen the same note (or New note for a new draft) to recover it. Press Save to add it to your collection. Recipe ingredients now have a search field, and vitamins/minerals can be expanded on the nutrition screen.
