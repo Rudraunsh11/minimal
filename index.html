@@ -1,408 +1,97 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Today — Minimal</title>
-  <style>
-    /* Colours, spacing, and layout */
-    :root {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      color: #292e29;
-      background: #f6f7f2;
-    }
-    * { box-sizing: border-box; }
-    body { margin: 0; }
-    header, main {
-      width: min(840px, 100%);
-      margin: auto;
-      padding: 28px 24px;
-    }
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid #dce1d6;
-    }
-    .brand { font-size: 25px; font-weight: 750; }
-    .badge, .eyebrow {
-      font-size: 13px;
-      color: #56634e;
-    }
-    main { padding-top: 56px; }
-    h1 {
-      font-size: clamp(34px, 7vw, 52px);
-      letter-spacing: -2px;
-      margin: 12px 0;
-    }
-    .intro { color: #62685f; line-height: 1.6; }
-    section {
-      background: #fff;
-      padding: 24px;
-      margin-top: 32px;
-      border: 1px solid #dce1d6;
-      border-radius: 20px;
-    }
-    h2 { font-size: 20px; margin: 0 0 20px; }
-    form { display: flex; gap: 10px; }
-    input, button { font: inherit; }
-    input[type="text"] {
-      flex: 1;
-      min-width: 0;
-      padding: 14px;
-      border: 1px solid #a4af9a;
-      border-radius: 10px;
-    }
-    button {
-      padding: 12px 18px;
-      border: 0;
-      border-radius: 10px;
-      background: #42573b;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover { background: #30432a; }
-    :focus-visible { outline: 3px solid #8b6fb0; outline-offset: 3px; }
-    ul { list-style: none; padding: 0; margin: 18px 0 0; }
-    li { border-top: 1px solid #edf0e9; }
-    li label {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 16px 0;
-      overflow-wrap: anywhere;
-    }
-    input[type="checkbox"] {
-      width: 20px;
-      height: 20px;
-      flex-shrink: 0;
-      accent-color: #42573b;
-    }
-    input:checked + span {
-      text-decoration: line-through;
-      color: #73786e;
-    }
-    .hint { font-size: 14px; color: #62685f; line-height: 1.6; }
-    @media (max-width: 480px) {
-      form { flex-direction: column; }
-      section { padding: 20px; }
-    }
-        /* Place the task and its Delete button beside each other. */
-    li {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    li label {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .delete-task {
-      flex-shrink: 0;
-      min-height: 44px;
-      padding: 10px;
-      background: transparent;
-      color: #805044;
-    }
-
-    .delete-task:hover {
-      background: #faf0ec;
-    }
-    .task-actions { display: flex; gap: 4px; flex-shrink: 0; }
-    .edit-task, .cancel-edit {
-      background: transparent; color: #42573b;
-      min-height: 44px; padding: 10px;
-    }
-    .edit-task:hover, .cancel-edit:hover { background: #edf0e9; }
-    .task-editor { width: 100%; padding: 12px 0; flex-wrap: wrap; }
-    .task-editor input { flex-basis: 180px; }
-    @media (max-width: 480px) {
-      li { flex-wrap: wrap; gap: 0; }
-      li label { flex-basis: 100%; }
-      .task-actions { margin-left: auto; margin-bottom: 8px; }
-      .task-editor input { flex-basis: auto; }
-    }
-    .notes-label { display: block; margin-bottom: 10px; color: #62685f; }
-    #quick-note {
-      display: block; width: 100%; min-height: 180px;
-      resize: vertical; padding: 16px; font: inherit; line-height: 1.7;
-      color: #292e29; background: #fbfcf8;
-      border: 1px solid #a4af9a; border-radius: 10px;
-    }
-    .notes-footer { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-  </style>
-</head>
-<body>
-  <header>
-    <span class="brand">minimal.</span>
-    <span class="badge">Your daily space</span>
-  </header>
-
-  <main>
-    <p class="eyebrow" id="date"></p>
-    <h1>A little more space<br>for your day.</h1>
-    <p class="intro">
-      Start with what matters. Take the rest one step at a time.
-    </p>
-
-    <section aria-labelledby="tasks-heading">
-      <h2 id="tasks-heading">Your priorities</h2>
-      <form id="task-form">
-        <input
-          id="task-input"
-          type="text"
-          aria-label="New priority"
-          placeholder="What would you like to do?"
-          maxlength="160"
-          required
-        >
-        <button type="submit">Add task</button>
-      </form>
-      <ul id="task-list"></ul>
-      <p class="hint" id="status" role="status">
-        Add your first priority above.
-      </p>
-    </section>
-
-    <section aria-labelledby="notes-heading">
-      <h2 id="notes-heading">A place to clear your mind</h2>
-      <label class="notes-label" for="quick-note">Quick notes</label>
-      <textarea id="quick-note" rows="6" maxlength="20000"
-        placeholder="An idea, a thought, something to remember…"
-        aria-describedby="note-status note-help"></textarea>
-      <div class="notes-footer">
-        <p class="hint" id="note-status" role="status">Ready for your thoughts.</p>
-        <p class="hint" id="note-count">0 / 20,000 characters</p>
-      </div>
-      <p class="hint" id="note-help">One ongoing scratchpad. Saves automatically in this browser only.</p>
-    </section>
-
-   <p class="hint" id="storage-message" role="status">
-      Tasks are stored in this browser only. No account sync yet.
-    </p>
-  </main>
-
-  <script>
-    document.getElementById("date").textContent =
-      new Intl.DateTimeFormat(undefined, {
-        weekday: "long",
-        month: "long",
-        day: "numeric"
-      }).format(new Date());
-
-    const form = document.getElementById("task-form");
-    const input = document.getElementById("task-input");
-    const list = document.getElementById("task-list");
-    const status = document.getElementById("status");
-    const storageMessage = document.getElementById("storage-message");
-
-    // This name identifies our saved checklist in this browser.
-    const storageKey = "minimal.tasks.v1";
-    let tasks = [];
-    let canSave = true;
-
-    // Read previously saved tasks when the page opens.
-    try {
-      const saved = localStorage.getItem(storageKey);
-
-      if (saved !== null) {
-        const parsed = JSON.parse(saved);
-
-        const valid = Array.isArray(parsed) && parsed.every(task =>
-          task !== null &&
-          typeof task === "object" &&
-          typeof task.text === "string" &&
-          typeof task.done === "boolean"
-        );
-
-        if (!valid) throw new Error("Invalid task data");
-        tasks = parsed;
-      }
-    } catch (error) {
-      canSave = false;
-      storageMessage.textContent =
-        "Saved tasks could not be read. Changes will last only " +
-        "until you close or refresh this page.";
-    }
-
-    function saveTasks() {
-      if (!canSave) return;
-
-      try {
-        localStorage.setItem(storageKey, JSON.stringify(tasks));
-        storageMessage.textContent =
-          "Saved in this browser only. No account sync yet.";
-      } catch (error) {
-        storageMessage.textContent =
-          "Your latest changes could not be saved. " +
-          "Keep this page open to avoid losing them.";
-      }
-    }
-
-    function updateProgress() {
-      const done = tasks.filter(task => task.done).length;
-
-      status.textContent = tasks.length
-        ? `${done} of ${tasks.length} priorities complete`
-        : "Add your first priority above.";
-    }
-
-    function renderTasks() {
-      list.replaceChildren();
-
-      tasks.forEach(task => {
-        const item = document.createElement("li");
-        const label = document.createElement("label");
-        const checkbox = document.createElement("input");
-        const text = document.createElement("span");
-        const deleteButton = document.createElement("button");
-
-        checkbox.type = "checkbox";
-        checkbox.checked = task.done;
-        text.textContent = task.text;
-
-        checkbox.addEventListener("change", function () {
-          task.done = checkbox.checked;
-          saveTasks();
-          updateProgress();
-        });
-
-        deleteButton.type = "button";
-        deleteButton.className = "delete-task";
-        deleteButton.textContent = "Delete";
-        deleteButton.setAttribute("aria-label", `Delete ${task.text}`);
-
-        deleteButton.addEventListener("click", function () {
-          tasks = tasks.filter(entry => entry !== task);
-          saveTasks();
-          renderTasks();
-          input.focus();
-        });
-
-        const editButton = document.createElement("button");
-        editButton.type = "button";
-        editButton.className = "edit-task";
-        editButton.textContent = "Edit";
-        editButton.setAttribute("aria-label", `Edit ${task.text}`);
-
-        editButton.addEventListener("click", function () {
-          const editor = document.createElement("form");
-          editor.className = "task-editor";
-          const field = document.createElement("input");
-          field.type = "text";
-          field.value = task.text;
-          field.maxLength = 160;
-          field.required = true;
-          field.setAttribute("aria-label", "Task name");
-
-          const saveButton = document.createElement("button");
-          saveButton.type = "submit";
-          saveButton.textContent = "Save";
-          const cancelButton = document.createElement("button");
-          cancelButton.type = "button";
-          cancelButton.className = "cancel-edit";
-          cancelButton.textContent = "Cancel";
-
-          function closeEditor() {
-            item.replaceChildren(label, actions);
-            editButton.focus();
-          }
-
-          editor.addEventListener("submit", function (event) {
-            event.preventDefault();
-            const name = field.value.trim();
-            if (!name) {
-              field.setCustomValidity("Enter a task name.");
-              field.reportValidity();
-              return;
-            }
-            task.text = name;
-            text.textContent = name;
-            editButton.setAttribute("aria-label", `Edit ${name}`);
-            deleteButton.setAttribute("aria-label", `Delete ${name}`);
-            saveTasks();
-            closeEditor();
-          });
-          field.addEventListener("input", function () {
-            field.setCustomValidity("");
-          });
-          editor.addEventListener("keydown", function (event) {
-            if (event.key === "Escape") {
-              event.preventDefault();
-              closeEditor();
-            }
-          });
-          cancelButton.addEventListener("click", closeEditor);
-          editor.append(field, saveButton, cancelButton);
-          item.replaceChildren(editor);
-          field.focus();
-          field.select();
-        });
-
-        const actions = document.createElement("div");
-        actions.className = "task-actions";
-        actions.append(editButton, deleteButton);
-        label.append(checkbox, text);
-        item.append(label, actions);
-        list.append(item);
-      });
-
-      updateProgress();
-    }
-
-    form.addEventListener("submit", function (event) {
-      event.preventDefault();
-
-      const text = input.value.trim();
-      if (!text) return;
-
-      tasks.push({ text: text, done: false });
-      saveTasks();
-      renderTasks();
-
-      input.value = "";
-      input.focus();
-    });
-
-    renderTasks();
-
-    // Notes use a separate key, so writing here never changes your tasks.
-    const noteField = document.getElementById("quick-note");
-    const noteStatus = document.getElementById("note-status");
-    const noteCount = document.getElementById("note-count");
-    const noteKey = "minimal.quickNote.v1";
-    let noteLoaded = false;
-
-    function updateNoteCount() {
-      noteCount.textContent =
-        noteField.value.length.toLocaleString() + " / 20,000 characters";
-    }
-
-    try {
-      const savedNote = localStorage.getItem(noteKey);
-      noteField.value = savedNote === null ? "" : savedNote;
-      noteLoaded = true;
-      if (savedNote !== null) noteStatus.textContent = "Loaded from this browser.";
-    } catch (error) {
-      noteField.readOnly = true;
-      noteStatus.textContent =
-        "Notes storage is unavailable. Reload when browser storage is available.";
-    }
-    updateNoteCount();
-
-    noteField.addEventListener("input", function () {
-      updateNoteCount();
-      if (!noteLoaded) return;
-      try {
-        localStorage.setItem(noteKey, noteField.value);
-        noteStatus.textContent = "Saved in this browser.";
-      } catch (error) {
-        noteStatus.textContent =
-          "Not saved. Copy your note somewhere safe before closing or refreshing.";
-      }
-    });
-  </script>
-</body>
-</html>
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Minimal brings your day, plans, notes and health into one calm space."><title>Minimal — your daily space</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#27342b;background:#f6f7f2;font-size:15px;--green:#435b40;--muted:#6c756a;--line:#dfe5da;--paper:#fff}*{box-sizing:border-box}body{margin:0}button,input,select,textarea{font:inherit}button,a,input,textarea,select{-webkit-tap-highlight-color:transparent}button{cursor:pointer;border:1px solid var(--line);border-radius:10px;padding:10px 15px;color:inherit;background:white;min-height:42px}button:hover{background:#edf2e7}button.primary{background:var(--green);color:white;border-color:var(--green)}button.ghost{background:transparent;border-color:transparent}button.danger{color:#914d3f}button:disabled{opacity:.5;cursor:default}:focus-visible{outline:3px solid #a480b0;outline-offset:3px}input,select,textarea{border:1px solid #b8c2b2;border-radius:9px;background:#fff;padding:11px;color:inherit;min-width:0;width:100%}textarea{resize:vertical;line-height:1.7}input[type=checkbox]{width:20px;height:20px;accent-color:var(--green);flex-shrink:0}a{color:#43613b}h1,h2,h3,p{margin-top:0}h1{font-size:42px;letter-spacing:-1.6px;font-weight:650;line-height:1.13;margin-bottom:14px}h2{font-size:20px;letter-spacing:-.4px}h3{font-size:16px}.muted,small{color:var(--muted)}.eyebrow{text-transform:uppercase;letter-spacing:1.7px;font-size:11px;font-weight:650;color:var(--muted)}.layout{display:grid;grid-template-columns:220px 1fr;min-height:100vh}.sidebar{border-right:1px solid var(--line);padding:35px 20px;display:flex;flex-direction:column;gap:35px;background:#f1f3ec}.brand{font-size:29px;letter-spacing:-1.5px;font-weight:750;padding:0 14px}.brand b{color:#729365}nav{display:grid;gap:7px}nav button{text-align:left;border:0;background:transparent;padding:12px 16px;color:#687462}nav button.active{background:#e0e8d8;color:#31472a;font-weight:650}nav button span{margin-right:12px;display:inline-block;width:20px;text-align:center}.side-note{margin-top:auto;font-size:12px;line-height:1.7;padding:15px;color:var(--muted)}main{max-width:1250px;width:100%;padding:30px 48px 70px;margin:auto}.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:42px;gap:12px}.day-picker{display:flex;align-items:center;gap:8px}.day-picker input{max-width:156px;background:transparent;border:0}.intro{display:flex;justify-content:space-between;align-items:center;margin-bottom:30px;gap:18px}.intro p{margin-bottom:0;line-height:1.7}.leaf{width:98px;height:98px;border-radius:70% 15% 70% 20%;background:#d9e4cd;transform:rotate(-18deg);position:relative;margin-right:30px;flex-shrink:0}.leaf:after{content:"";position:absolute;height:90px;width:1px;background:#a8bb96;left:50%;top:12px;transform:rotate(35deg)}.grid{display:grid;grid-template-columns:1.25fr 1fr;gap:20px}.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:24px;margin-bottom:20px}.card.tint{background:#eaf0e2}.card-head,.row,.actions{display:flex;align-items:center;gap:10px}.card-head{justify-content:space-between;margin-bottom:18px}.card-head h2{margin:0}.row{flex-wrap:wrap}.actions{flex-shrink:0;flex-wrap:wrap}.stack{display:grid;gap:13px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:24px}.stat{padding:18px 20px;background:white;border:1px solid var(--line);border-radius:15px}.stat strong{display:block;font-size:26px;letter-spacing:-1px;margin:10px 0 3px}.stat small{font-size:12px}.empty{border:1px dashed #d4decc;border-radius:12px;padding:28px 18px;text-align:center;color:#7a8474;font-size:14px;line-height:1.7}.item{border-bottom:1px solid #edf0e9;padding:15px 0;display:flex;align-items:center;gap:12px}.item:last-child{border-bottom:0}.item .body{flex:1;min-width:0;overflow-wrap:anywhere}.item label{display:flex;align-items:center;gap:12px;flex:1;min-width:0}.item small{display:block;margin-top:4px;line-height:1.5}.item .done{text-decoration:line-through;color:#889080}.tag{font-size:11px;background:#eef2e9;padding:5px 8px;border-radius:6px;display:inline-block}.progress{height:7px;background:#e0e7d9;border-radius:9px;overflow:hidden;margin:12px 0}.progress div{height:100%;background:#7e9d6b;border-radius:9px}.water-num{font-size:38px;letter-spacing:-1px}.water-num small{font-size:15px;letter-spacing:0}.note-preview{white-space:pre-wrap;max-height:110px;overflow:hidden;color:#65715f;line-height:1.7}.calendar{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}.calendar .weekday{text-align:center;font-size:11px;color:#76816c;padding:9px 0}.calendar button{min-height:70px;text-align:left;display:flex;flex-direction:column;justify-content:space-between;border-radius:10px;background:#fafbf8;padding:9px}.calendar button.selected{border:2px solid #63814f;background:#eaf0e2}.calendar .outside{opacity:.35}.dot{width:5px;height:5px;background:#64864f;border-radius:100%;display:inline-block;margin-right:3px}.month-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}.nutrients{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.nutrient{border-bottom:1px solid var(--line);padding:12px 0}.nutrient b{display:block;font-size:19px;margin:5px 0}.note-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}.note-grid .card{margin-bottom:0}.pill{font-size:12px;border-radius:30px;background:#e8eee1;padding:7px 12px}.banner{padding:12px 16px;border-radius:10px;background:#fff1df;color:#765429;margin-bottom:16px;font-size:13px;line-height:1.6}.split{display:grid;grid-template-columns:1fr 1fr;gap:14px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:15px}label.field{display:grid;gap:6px;font-size:13px;color:#58634f}.field.wide{grid-column:1/-1}.field input,.field textarea,.field select{font-size:15px;color:#27342b}.footnote{font-size:12px;color:var(--muted);line-height:1.7}.linkbtn{color:#45643b;background:transparent;border:0;padding:4px;min-height:35px}.full{width:100%}dialog{border:1px solid var(--line);border-radius:20px;width:min(660px,calc(100% - 24px));padding:0;max-height:90vh;color:inherit;background:#fff}dialog::backdrop{background:#1b2b2066;backdrop-filter:blur(3px)}.dialog-body{padding:26px}.dialog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.dialog-head h2{margin:0}.dialog-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:24px}.form-error{color:#a03f32;font-size:13px;margin-top:12px}.search-results{max-height:300px;overflow:auto;margin-top:14px}.search-results button{display:block;text-align:left;width:100%;margin-bottom:8px;line-height:1.5}.search-results small{display:block}.calculation{padding:16px;background:#edf2e7;border-radius:12px;line-height:1.7;margin-top:16px}.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0)}#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);padding:13px 20px;background:#283b26;color:white;border-radius:12px;z-index:10;max-width:90vw;box-shadow:0 5px 30px #0002}#toast:empty{display:none}.checklist{display:grid;gap:7px}.checklist label{display:flex;gap:8px;align-items:center}.week-bars{display:flex;align-items:flex-end;height:95px;gap:12px;padding-top:10px}.week-bars>div{flex:1;text-align:center;font-size:11px;color:#697960}.week-bars .bar{background:#c0d3ae;margin:0 auto 7px;border-radius:6px 6px 0 0;width:100%;min-height:3px}.mobile-brand{display:none}.file-input{font-size:13px}.tablewrap{overflow-x:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:13px}th,td{padding:12px 8px;border-bottom:1px solid var(--line)}
+@media(max-width:1000px){main{padding:26px}.layout{grid-template-columns:180px 1fr}.sidebar{padding:30px 12px}.grid{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.leaf{display:none}}
+@media(max-width:640px){.layout{display:block}.sidebar{padding:16px;border:0;gap:15px;position:static}.brand{font-size:25px;padding:0}nav{display:flex;overflow-x:auto;gap:4px}nav button{white-space:nowrap;padding:10px}nav button span{display:none}.side-note{display:none}main{padding:20px 16px 50px}.topbar{margin-bottom:28px;flex-wrap:wrap}.intro h1{font-size:34px}.card{padding:19px}.fields,.split,.note-grid{grid-template-columns:1fr}.stats{gap:9px}.stat{padding:15px}.nutrients{grid-template-columns:repeat(2,1fr)}.calendar{gap:3px}.calendar button{min-height:53px;padding:6px}.item{flex-wrap:wrap}.item .actions{margin-left:auto}.dialog-body{padding:20px}.field.wide{grid-column:auto}.day-picker input{max-width:145px}.intro{align-items:flex-start}.intro>button{padding:9px;font-size:13px}}
+</style></head><body>
+<div class="layout"><aside class="sidebar"><div class="brand">minimal<b>.</b></div><nav aria-label="Main navigation" id="nav"></nav><div class="side-note"><b>A little, every day.</b><br>Your space to build a life<br>that feels like you.<hr style="border:0;border-top:1px solid #dfe5da;margin:20px 0">Private browser storage<br><span id="save-state">Ready</span></div></aside><main><div class="topbar"><span class="eyebrow">A little more space for life</span><div class="day-picker"><button class="ghost" id="prev-day" aria-label="Previous day">‹</button><input type="date" id="day" aria-label="Selected date"><button class="ghost" id="next-day" aria-label="Next day">›</button><button class="ghost" id="today">Today</button></div></div><div id="storage-error" role="alert"></div><div id="view"></div></main></div><dialog id="modal"><div class="dialog-body" id="dialog-content"></div></dialog><div id="toast" role="status" aria-live="polite"></div>
+<script src="foods.js"></script>
+<script>
+'use strict';
+const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const uid=()=>crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2);
+const dayKey=(d=new Date())=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+const dateObj=s=>new Date(s+'T12:00:00');const fmt=(n,d=1)=>Number(n).toLocaleString(undefined,{maximumFractionDigits:d});
+const dateLabel=s=>dateObj(s).toLocaleDateString(undefined,{weekday:'long',month:'long',day:'numeric'});
+const KEY='minimal.life.v1', CATALOG=(window.MINIMAL_FOOD_ROWS||[]).map(r=>({id:'usda-'+r[0],name:r[1],unit:'g',source:'USDA '+(r[2]?'Foundation 2026':'SR Legacy 2018')+' · FDC '+r[0],sourceUrl:'https://fdc.nal.usda.gov/food-details/'+r[0]+'/nutrients',nutrients:Object.fromEntries(['kcal','protein','carbs','fat','fiber','sugar','sodium','calcium','iron','potassium','vitc','vitd','b12','vita','magnesium'].map((k,i)=>[k,r[3][i]])),portions:r[4]}));
+const NUTRIENTS=[['kcal','Calories','kcal'],['protein','Protein','g'],['carbs','Carbohydrates','g'],['fat','Fat','g'],['fiber','Fibre','g'],['sugar','Sugar','g'],['sodium','Sodium','mg'],['calcium','Calcium','mg'],['iron','Iron','mg'],['potassium','Potassium','mg'],['vitc','Vitamin C','mg'],['vitd','Vitamin D','µg'],['b12','Vitamin B12','µg'],['vita','Vitamin A (RAE)','µg'],['magnesium','Magnesium','mg']];
+const defaults=()=>({version:1,tasks:[],notes:[],events:[],foods:[],library:[],water:[],workouts:[],habits:[],checks:{},settings:{name:'',waterGoal:2000,kcalGoal:null,proteinGoal:null,carbsGoal:null,fatGoal:null}});
+let state=defaults(),storageOK=true,tab='today',day=dayKey(),month=day.slice(0,7),taskFilter='all',toastTimer;
+function notify(s){$('#toast').textContent=s;clearTimeout(toastTimer);toastTimer=setTimeout(()=>$('#toast').textContent='',4500)}
+function validate(s){
+ const dateOK=x=>typeof x==='string'&&/^\d{4}-\d{2}-\d{2}$/.test(x)&&Number.isFinite(new Date(x+'T12:00:00').getTime());
+ if(s&&typeof s==='object'){
+ for(const key of ['tasks','notes','events','foods','library','water','workouts','habits'])if(Array.isArray(s[key]))for(const x of s[key]){
+ if(!x||typeof x.id!=='string'||!/^[-a-zA-Z0-9]+$/.test(x.id))throw Error('Invalid record identifier');
+ if(['tasks','foods','water','workouts'].includes(key)&&!dateOK(x.date))throw Error('Invalid record date');
+ if(['foods','library'].includes(key)&&(typeof x.source!=='string'||(x.sourceUrl&&!/^https:\/\//.test(x.sourceUrl))))throw Error('Invalid food source');
+ if(key==='tasks'&&(!['Normal','High','Low'].includes(x.priority)||!Array.isArray(x.steps)||x.steps.some(t=>!t||typeof t.text!=='string'||typeof t.done!=='boolean')))throw Error('Invalid checklist');
+ if(key==='events'&&(typeof x.start!=='string'||typeof x.end!=='string'||x.end<=x.start||typeof x.category!=='string'||typeof x.remind!=='boolean'))throw Error('Invalid event');
+ if(key==='notes'&&!Number.isFinite(new Date(x.updated).getTime()))throw Error('Invalid note date');
+ if(key==='foods'&&!['Breakfast','Lunch','Dinner','Snack'].includes(x.meal))throw Error('Invalid meal');
+ }
+ if(s.settings){if(typeof s.settings.name!=='string')throw Error('Invalid display name');for(const key of ['kcalGoal','proteinGoal','carbsGoal','fatGoal'])if(s.settings[key]!=null&&(!Number.isFinite(s.settings[key])||s.settings[key]<0))throw Error('Invalid goal');}
+ if(s.checks)for(const [k,v] of Object.entries(s.checks))if(!dateOK(k)||!Array.isArray(v)||v.some(x=>typeof x!=='string'))throw Error('Invalid habit checks');
+ }
+if(!s||s.version!==1)throw Error('Unrecognized backup version.');for(const k of ['tasks','notes','events','foods','library','water','workouts','habits'])if(!Array.isArray(s[k])||s[k].length>20000)throw Error('Invalid '+k);if(!s.settings||!s.checks||Array.isArray(s.checks))throw Error('Invalid settings');for(const k of ['tasks','notes','events','foods','library','water','workouts','habits'])for(const x of s[k])if(!x||typeof x.id!=='string')throw Error('Invalid record');
+ for(const t of s.tasks)if(typeof t.text!=='string'||typeof t.done!=='boolean'||!Array.isArray(t.steps))throw Error('Invalid task');for(const n of s.notes)if(typeof n.title!=='string'||typeof n.body!=='string')throw Error('Invalid note');for(const e of s.events)if(typeof e.title!=='string'||!Number.isFinite(new Date(e.start).getTime())||!Number.isFinite(new Date(e.end).getTime()))throw Error('Invalid event');for(const f of [...s.foods,...s.library]){if(typeof f.name!=='string'||!f.nutrients||!['g','ml'].includes(f.unit))throw Error('Invalid food');for(const [k] of NUTRIENTS)if(f.nutrients[k]!=null&&(!Number.isFinite(f.nutrients[k])||f.nutrients[k]<0))throw Error('Invalid nutrient');}for(const f of s.foods)if(!Number.isFinite(f.amount)||f.amount<=0)throw Error('Invalid portion');for(const w of s.water)if(!Number.isFinite(w.amount)||w.amount<=0)throw Error('Invalid water');for(const w of s.workouts)if(typeof w.name!=='string'||![w.sets,w.reps,w.weight].every(Number.isFinite)||w.sets<1||w.reps<1||w.weight<0)throw Error('Invalid workout');for(const h of s.habits)if(typeof h.name!=='string')throw Error('Invalid habit');if(!Number.isFinite(s.settings.waterGoal)||s.settings.waterGoal<=0)throw Error('Invalid water goal');return s;}
+try{const raw=localStorage.getItem(KEY);if(raw)state=validate(JSON.parse(raw));else{const tasks=JSON.parse(localStorage.getItem('minimal.tasks.v1')||'[]');if(Array.isArray(tasks))state.tasks=tasks.filter(t=>t&&typeof t.text==='string').map(t=>({id:uid(),text:t.text,done:!!t.done,date:day,priority:'Normal',steps:[]}));const note=localStorage.getItem('minimal.quickNote.v1');if(note)state.notes.push({id:uid(),title:'My first notes',body:note,updated:new Date().toISOString()});localStorage.setItem(KEY,JSON.stringify(state));}}catch(e){storageOK=false;$('#storage-error').innerHTML='<div class="banner">Your saved data could not be read. Editing is paused to protect it. Export any available data, or open this app where browser storage is enabled.</div>';}
+function commit(fn){if(!storageOK){notify('Storage is unavailable; changes were not saved.');return false}const next=JSON.parse(JSON.stringify(state));fn(next);try{validate(next);localStorage.setItem(KEY,JSON.stringify(next));state=next;$('#save-state').textContent='Saved on this device';return true}catch(e){notify('Not saved: '+e.message);return false}}
+function scale(n,amount){return Object.fromEntries(NUTRIENTS.map(([k])=>[k,n[k]==null?null:n[k]*amount/100]))}
+function totals(rows){const out={};for(const [k] of NUTRIENTS){let value=0,known=0;for(const f of rows){const n=f.nutrients[k];if(n!=null){value+=n*f.amount/100;known++}}out[k]={value,known,total:rows.length}}return out}
+const foods=()=>state.foods.filter(x=>x.date===day),waters=()=>state.water.filter(x=>x.date===day),workouts=()=>state.workouts.filter(x=>x.date===day),tasks=()=>state.tasks.filter(x=>x.date===day),events=()=>state.events.filter(x=>x.start.slice(0,10)===day).sort((a,b)=>a.start.localeCompare(b.start));
+const button=(label,action,id='',cls='')=>`<button type="button" class="${cls}" data-action="${action}" data-id="${esc(id)}">${label}</button>`;
+const empty=(s)=>`<div class="empty">${s}</div>`;
+const header=(title,desc,action='')=>`<div class="intro"><div><p class="eyebrow">${esc(dateLabel(day))}</p><h1>${title}</h1><p class="muted">${desc}</p></div>${action}</div>`;
+const card=(title,body,action='',cls='')=>`<section class="card ${cls}"><div class="card-head"><h2>${title}</h2>${action}</div>${body}</section>`;
+const progress=(v,g)=>`<div class="progress" role="progressbar" aria-label="Progress toward goal" aria-valuemin="0" aria-valuemax="${g}" aria-valuenow="${Math.min(g,v)}"><div style="width:${Math.min(100,100*v/g)}%"></div></div>`;
+function taskRows(rows){return rows.length?rows.map(t=>`<div class="item"><label><input type="checkbox" data-check="task" data-id="${t.id}" ${t.done?'checked':''}><span class="${t.done?'done':''}">${esc(t.text)}<small>${esc(t.priority)}${t.steps.length?' · '+t.steps.filter(s=>s.done).length+'/'+t.steps.length+' checklist items':''}</small></span></label><div class="actions">${button('Edit','task',t.id,'ghost')}${button('×','remove-task',t.id,'ghost danger')}</div></div>${t.steps.length?`<div class="checklist" style="padding:0 0 14px 32px">${t.steps.map((s,i)=>`<label><input type="checkbox" data-check="step" data-id="${t.id}" data-index="${i}" ${s.done?'checked':''}>${esc(s.text)}</label>`).join('')}</div>`:''}`).join(''):empty('A clear page. Add one thing that matters.');}
+function eventRows(rows){return rows.length?rows.map(e=>`<div class="item"><span class="tag">${e.start.slice(11,16)}</span><div class="body"><b>${esc(e.title)}</b><small>${esc(e.category)} · until ${e.end.slice(11,16)}${e.remind?' · reminder':''}</small></div>${button('Edit','event',e.id,'ghost')}${button('×','remove-event',e.id,'ghost danger')}</div>`).join(''):empty('Nothing scheduled. Make room for what matters.');}
+function waterCard(){const amount=waters().reduce((s,x)=>s+x.amount,0);return card('A moment to hydrate',`<div class="water-num">${fmt(amount,0)} <small>/ ${fmt(state.settings.waterGoal,0)} ml</small></div>${progress(amount,state.settings.waterGoal)}<div class="row">${button('+ 250 ml','water','250')}${button('+ 500 ml','water','500')}${button('Undo last','undo-water','','ghost')}</div><p class="footnote" style="margin:14px 0 0">Your adjustable goal, not a medical recommendation.</p>`,'','tint')}
+function habitsCard(){return card('Little things, daily',state.habits.length?state.habits.map(h=>`<div class="item"><label><input type="checkbox" data-check="habit" data-id="${h.id}" ${state.checks[day]?.includes(h.id)?'checked':''}>${esc(h.name)}</label>${button('×','remove-habit',h.id,'ghost')}</div>`).join(''):empty('Read. Walk. Stretch. Start with one small habit.'),button('+ Add','habit','','ghost'))}
+function dailyStats(){const t=totals(foods()),completed=tasks().filter(t=>t.done).length;return `<div class="stats"><div class="stat"><small>Priorities</small><strong>${completed}<small> / ${tasks().length}</small></strong><small>one step at a time</small></div><div class="stat"><small>Food energy</small><strong>${t.kcal.known?fmt(t.kcal.value,0):'—'}<small> kcal</small></strong><small>${t.kcal.known<t.kcal.total?'partial data':'logged today'}</small></div><div class="stat"><small>Water</small><strong>${fmt(waters().reduce((s,x)=>s+x.amount,0)/1000,2)}<small> L</small></strong><small>keep a glass nearby</small></div><div class="stat"><small>Training</small><strong>${workouts().reduce((s,x)=>s+x.sets,0)}<small> sets</small></strong><small>${workouts().length} exercise entries</small></div></div>`}
+function todayView(){return header(`Make space for<br>your kind of day${state.settings.name?', '+esc(state.settings.name):''}.`,'A clear mind. A little movement. One good thing at a time.','<div class="leaf" aria-hidden="true"></div>')+dailyStats()+`<div class="grid"><div>${card('Your priorities',taskRows(tasks().slice(0,5)),button('+ Add task','task','','ghost'))}${card('On the horizon',eventRows(events()),button('+ Plan','event','','ghost'))}</div><div>${waterCard()}${habitsCard()}</div></div>`+card('A thought worth keeping',state.notes.length?`<p class="note-preview">${esc(state.notes[0].body)}</p>`:empty('Give the thoughts in your head a place to land.'),button('Open notes','nav','notes','ghost'))}
+function tasksView(){let rows=tasks().filter(t=>taskFilter==='all'||(taskFilter==='done'?t.done:!t.done));return header('Less noise.<br>More intention.','Break big plans into small, doable steps.',button('+ New task','task','','primary'))+card('Your checklist',`<div class="row" style="margin-bottom:14px">${['all','open','done'].map(x=>button(x[0].toUpperCase()+x.slice(1),'filter',x,taskFilter===x?'primary':'')).join('')}</div>${taskRows(rows)}`)}
+function calendarView(){const base=dateObj(month+'-01'),start=new Date(base);start.setDate(1-(base.getDay()+6)%7);let cells='';for(let i=0;i<42;i++){const d=new Date(start);d.setDate(start.getDate()+i);const k=dayKey(d),count=state.events.filter(e=>e.start.startsWith(k)).length;cells+=`<button class="${k===day?'selected':''} ${k.slice(0,7)!==month?'outside':''}" data-action="date" data-id="${k}" aria-label="${esc(dateLabel(k))}, ${count} events"><span>${d.getDate()}</span><span>${count?'<i class="dot"></i>'.repeat(Math.min(count,3)):''}</span></button>`}return header('Give your day<br>a little shape.','Plan focus time, movement, and everything in between.',button('+ New event','event','','primary'))+`<div class="grid"><div class="card"><div class="month-head">${button('‹','month','-1','ghost')}<h2 style="margin:0">${base.toLocaleDateString(undefined,{month:'long',year:'numeric'})}</h2>${button('›','month','1','ghost')}</div><div class="calendar">${['Mon','Tue','Wed','Thu','Fri','Sat','Sun'].map(x=>'<span class="weekday">'+x+'</span>').join('')}${cells}</div></div><div>${card(dateLabel(day),eventRows(events()))}<p class="footnote">In-app reminders appear while Minimal is open. Browser or email notifications while closed are not connected.</p></div></div>`}
+function notesView(){return header('A quieter mind<br>starts here.','Ideas, plans, daily reflections. Keep what matters.',button('+ New note','note','','primary'))+`<input type="search" id="note-search" placeholder="Search your notes…" aria-label="Search notes" style="margin-bottom:20px"><div class="note-grid" id="note-list">${noteCards(state.notes)}</div>`}
+function noteCards(rows){return rows.length?rows.map(n=>card(esc(n.title),`<p class="note-preview">${esc(n.body)}</p><small>Updated ${new Date(n.updated).toLocaleDateString()}</small>`,`<div class="actions">${button('Edit','note',n.id,'ghost')}${button('×','remove-note',n.id,'ghost danger')}</div>`)).join(''):empty('No notes yet. Start with a thought.')}
+function nutrientCards(){const t=totals(foods());return '<div class="nutrients">'+NUTRIENTS.map(([k,name,unit])=>`<div class="nutrient"><small>${name}</small><b>${t[k].known?fmt(t[k].value,k==='kcal'?0:2):'—'} <small>${unit}</small></b><small>${t[k].total?`${t[k].known}/${t[k].total} foods have data`:'No food logged'}${t[k].known<t[k].total?' · partial':''}</small>${state.settings[k+'Goal']>0?progress(t[k].value,state.settings[k+'Goal'])+'<small>Target '+fmt(state.settings[k+'Goal'])+' '+unit+'</small>':''}</div>`).join('')+'</div>'}
+function nutritionView(){const rows=foods(),t=totals(rows);return header('Nourish your day.','Know your portions. Understand your nutrition.',button('+ Log food','food','','primary'))+`<div class="row" style="margin-bottom:20px">${button('Food library & recipes','library')}${button('Nutrition goals','goals','','ghost')}</div>`+card('Your daily nutrition',nutrientCards()+`<p class="footnote" style="margin-top:18px">Totals sum only known values; incomplete totals are not your full intake. Values are estimates from food records or your labels. Match raw/cooked preparation and weigh the edible portion.</p>`)+card('Meals',rows.length?['Breakfast','Lunch','Dinner','Snack'].map(meal=>{const group=rows.filter(f=>f.meal===meal);if(!group.length)return '';return `<h3 style="margin:20px 0 0">${meal}</h3>`+group.map(f=>`<div class="item"><div class="body"><b>${esc(f.name)}</b><small>${fmt(f.amount)} ${f.unit} · ${f.nutrients.kcal==null?'Unknown calories':fmt(f.nutrients.kcal*f.amount/100,0)+' kcal'} · ${esc(f.source)}</small></div>${button('Portion','portion',f.id,'ghost')}${button('×','remove-food',f.id,'ghost danger')}</div>`).join('')}).join(''):empty('Search for a food, choose your portion, and let Minimal do the maths.'))+waterCard()}
+function workoutView(){const rows=workouts();return header('Show up.<br>Get a little stronger.','Log what you did. Build on it next time.',button('+ Log exercise','workout','','primary'))+card('Training log',rows.length?rows.map(w=>`<div class="item"><div class="body"><b>${esc(w.name)}</b><small>${w.sets} sets × ${w.reps} reps × ${fmt(w.weight)} kg${w.notes?' · '+esc(w.notes):''}</small></div>${button('Edit','workout',w.id,'ghost')}${button('×','remove-workout',w.id,'ghost danger')}</div>`).join(''):empty('Your next session starts with one exercise.'))+card('This week',`<p class="muted">Sets logged each day. Volume counts only the external weight you enter.</p><div class="week-bars">${Array.from({length:7},(_,i)=>{const d=dateObj(day);d.setDate(d.getDate()-6+i);const k=dayKey(d),n=state.workouts.filter(w=>w.date===k).reduce((s,w)=>s+w.sets,0);return `<div><div class="bar" style="height:${Math.min(65,n*4)}px" title="${n} sets"></div>${d.toLocaleDateString(undefined,{weekday:'short'})}<br>${n}</div>`}).join('')}</div><p class="footnote" style="margin-top:24px">Selected day volume: ${fmt(rows.reduce((s,w)=>s+w.sets*w.reps*w.weight,0),0)} kg · Bodyweight exercises may use 0 kg added weight.</p>`)}
+function settingsView(){return header('Make it yours.','A simple setup. Your data, under your control.')+`<div class="grid"><div>${card('Preferences',`<p class="muted">Set your display name and personal targets.</p>${button('Edit preferences','preferences','','primary')}`)}${card('Backup & restore',`<p class="muted">Your records live in this browser. Export a backup before switching devices or website addresses.</p><div class="row">${button('Export backup','export','','primary')}<label class="field">Restore a JSON backup<input type="file" accept="application/json,.json" id="import-file" class="file-input"></label></div><p class="footnote" style="margin-top:15px">Import replaces current data after confirmation. Keep your exported backup private.</p>`)}</div><div>${card('What this version does',`<p class="footnote">Tasks and checklists · calendar events · in-app reminders · notes · habits · hydration · food calculations · exercise logs.</p><p class="footnote">No account sync, closed-app reminders, wearable integrations, AI meal-photo estimates, or coaching service is connected.</p><p class="footnote">Food library: USDA FoodData Central, public-domain SR Legacy (2018) and Foundation (2026) records. Packaged-food barcode lookup: Open Food Facts, ODbL. Verify packaged-food data against your label.</p><p><a href="https://fdc.nal.usda.gov/" target="_blank" rel="noopener">USDA data</a> · <a href="https://world.openfoodfacts.org/" target="_blank" rel="noopener">Open Food Facts</a></p>`)}${card('Stored here',`<p class="muted">${state.tasks.length} tasks · ${state.notes.length} notes · ${state.foods.length} meal entries</p><p class="footnote">Health records are not uploaded to GitHub. Barcode requests send the barcode to Open Food Facts. Browser data can be cleared; export backups regularly.</p>`)}</div></div>`}
+const tabs=[['today','◌','Today'],['tasks','✓','Tasks'],['calendar','▦','Calendar'],['nutrition','◒','Nutrition'],['workouts','↗','Movement'],['notes','≡','Notes'],['settings','⚙','Settings']];
+function render(){document.title=tabs.find(x=>x[0]===tab)[2]+' — Minimal';$('#day').value=day;$('#nav').innerHTML=tabs.map(([k,i,n])=>`<button data-action="nav" data-id="${k}" class="${tab===k?'active':''}" ${tab===k?'aria-current="page"':''}><span aria-hidden="true">${i}</span>${n}</button>`).join('');$('#view').innerHTML=({today:todayView,tasks:tasksView,calendar:calendarView,nutrition:nutritionView,workouts:workoutView,notes:notesView,settings:settingsView})[tab]();}
+function dialog(title,body){$('#dialog-content').innerHTML=`<div class="dialog-head"><h2>${title}</h2><button class="ghost" data-action="close" aria-label="Close dialog">×</button></div>${body}`;if(!$('#modal').open)$('#modal').showModal()}
+function close(){ $('#modal').close(); }
+function field(name,label,type='text',value='',extra=''){return `<label class="field ${type==='textarea'?'wide':''}">${label}${type==='textarea'?`<textarea name="${name}" rows="5" ${extra}>${esc(value)}</textarea>`:`<input name="${name}" type="${type}" value="${esc(value)}" ${extra}>`}</label>`}
+function select(name,label,values,value){return `<label class="field">${label}<select name="${name}">${values.map(v=>`<option ${v===value?'selected':''}>${esc(v)}</option>`).join('')}</select></label>`}
+function formDialog(title,fields,onSave){dialog(title,`<form id="editor"><div class="fields">${fields}</div><p class="form-error" id="form-error" role="alert"></p><div class="dialog-footer">${button('Cancel','close')}<button class="primary" type="submit">Save</button></div></form>`);$('#editor').onsubmit=e=>{e.preventDefault();try{const d=Object.fromEntries(new FormData(e.target));if(onSave(d)!==false){close();render();notify('Saved')}}catch(err){$('#form-error').textContent=err.message}};}
+const titleText=s=>{s=String(s||'').trim();if(!s)throw Error('Please enter a name.');return s};
+const number=(s,min=0,max=1e7)=>{const n=Number(s);if(s===''||!Number.isFinite(n)||n<min||n>max)throw Error(`Enter a number between ${min} and ${max}.`);return n};
+function upsert(collection,item){return commit(s=>{const i=s[collection].findIndex(x=>x.id===item.id);if(i<0)s[collection].unshift(item);else s[collection][i]=item})}
+function taskEditor(id){const t=state.tasks.find(x=>x.id===id)||{id:uid(),text:'',date:day,priority:'Normal',done:false,steps:[]};formDialog(id?'Edit task':'A new priority',field('text','Task','text',t.text,'required maxlength="160"')+field('date','Day','date',t.date,'required')+select('priority','Priority',['Normal','High','Low'],t.priority)+field('steps','Checklist — one item per line','textarea',t.steps.map(s=>s.text).join('\n'),'maxlength="5000"'),d=>upsert('tasks',{...t,text:titleText(d.text),date:d.date,priority:d.priority,steps:d.steps.split('\n').map(x=>x.trim()).filter(Boolean).map(text=>({text,done:t.steps.find(s=>s.text===text)?.done||false}))}))}
+function eventEditor(id){const e=state.events.find(x=>x.id===id)||{id:uid(),title:'',start:day+'T09:00',end:day+'T10:00',category:'Personal',remind:false};formDialog('Plan your time',field('title','Event','text',e.title,'required maxlength="160"')+select('category','Category',['Personal','Work','Workout','Meal','Rest'],e.category)+field('start','Starts','datetime-local',e.start,'required')+field('end','Ends','datetime-local',e.end,'required')+select('remind','In-app reminder at start',['Off','On'],e.remind?'On':'Off'),d=>{if(d.end<=d.start)throw Error('End time must be after start time.');return upsert('events',{...e,...d,title:titleText(d.title),remind:d.remind==='On'})})}
+function noteEditor(id){const n=state.notes.find(x=>x.id===id)||{id:uid(),title:'',body:''};formDialog('A thought worth keeping',field('title','Title','text',n.title,'required maxlength="160"')+field('body','Your note','textarea',n.body,'maxlength="50000"'),d=>upsert('notes',{...n,title:titleText(d.title),body:d.body,updated:new Date().toISOString()}))}
+function workoutEditor(id){const w=state.workouts.find(x=>x.id===id)||{id:uid(),date:day,name:'',sets:3,reps:10,weight:0,notes:''};formDialog('Log your movement',field('name','Exercise','text',w.name,'required maxlength="160"')+field('date','Day','date',w.date,'required')+field('sets','Sets','number',w.sets,'required min="1" max="100" step="1"')+field('reps','Reps per set','number',w.reps,'required min="1" max="1000" step="1"')+field('weight','Added weight (kg)','number',w.weight,'required min="0" max="2000" step="0.1"')+field('notes','Notes','text',w.notes,'maxlength="500"'),d=>upsert('workouts',{...w,...d,name:titleText(d.name),sets:number(d.sets,1,100),reps:number(d.reps,1,1000),weight:number(d.weight,0,2000)}))}
+function preferences(){formDialog('Your preferences',field('name','Display name','text',state.settings.name,'maxlength="40"')+field('waterGoal','Daily water goal (ml)','number',state.settings.waterGoal,'required min="250" max="10000" step="50"'),d=>commit(s=>{s.settings.name=d.name.trim();s.settings.waterGoal=number(d.waterGoal,250,10000)}))}
+function goals(){formDialog('Your personal nutrition targets',`<p class="footnote field wide">Optional targets you choose yourself. These are not calculated dietary recommendations. Leave blank to unset.</p>`+[['kcalGoal','Energy (kcal)'],['proteinGoal','Protein (g)'],['carbsGoal','Carbohydrates (g)'],['fatGoal','Fat (g)']].map(([k,n])=>field(k,n,'number',state.settings[k]??'','min="0" max="10000" step="any"')).join(''),d=>commit(s=>{for(const k in d)s.settings[k]=d[k]===''?null:number(d[k],0,10000)}))}
+function foodPicker(){dialog('Find your food',`<p class="footnote">Search ${CATALOG.length} USDA reference foods and your saved foods. Choose the exact preparation. For packaged products, use a barcode.</p><input type="search" id="food-search" aria-label="Search foods" placeholder="Try rice, lentils, egg, banana…"><div class="row" style="margin-top:12px">${button('Enter barcode','barcode')}${button('Add from label','custom-food')}</div><div class="search-results" id="food-results"></div>`);const show=q=>{$('#food-results').innerHTML=[...state.library,...CATALOG].filter(f=>q.toLowerCase().split(/\s+/).every(w=>f.name.toLowerCase().includes(w))).slice(0,35).map(f=>`<button data-action="select-food" data-id="${esc(f.id)}"><b>${esc(f.name)}</b><small>${esc(f.source)} · ${f.nutrients.kcal??'Unknown'} kcal / 100 ${f.unit}</small></button>`).join('')||empty('No exact match. Add values from your label or build a recipe.');};$('#food-search').oninput=e=>show(e.target.value);show('');}
+function portion(food,entry){formDialog(entry?'Edit portion':'Log '+esc(food.name),`<p class="footnote field wide">${esc(food.source)} · Values per 100 ${food.unit}. ${food.sourceUrl?`<a href="${esc(food.sourceUrl)}" target="_blank" rel="noopener">Source record</a>`:''}</p>`+(food.portions?.length?`<label class="field wide">Optional reference portion<select id="portion-choice"><option value="">Enter weight yourself</option>${food.portions.map(p=>`<option value="${p[1]}">${esc(p[0])} — ${fmt(p[1])} g</option>`).join('')}</select></label>`:'')+field('amount',`Amount eaten (${food.unit})`,'number',entry?.amount||100,'required min="0.1" max="10000" step="any"')+select('meal','Meal',['Breakfast','Lunch','Dinner','Snack'],entry?.meal||'Breakfast')+field('date','Day','date',entry?.date||day,'required')+`<div class="calculation field wide" id="portion-preview"></div>`,d=>upsert('foods',{...food,id:entry?.id||uid(),amount:number(d.amount,.1,10000),meal:d.meal,date:d.date}));const preview=()=>{const a=Number($('#editor [name=amount]').value),n=scale(food.nutrients,a);$('#portion-preview').innerHTML=`<b>${Number.isFinite(a)?fmt(a):0} ${food.unit} ÷ 100 × reference values</b><br>`+NUTRIENTS.slice(0,4).map(([k,label,unit])=>`${label}: ${n[k]==null?'unknown':fmt(n[k],2)+' '+unit}`).join(' · ');};$('#editor [name=amount]').oninput=preview;if($('#portion-choice'))$('#portion-choice').onchange=e=>{if(e.target.value){$('#editor [name=amount]').value=e.target.value;preview()}};preview()}
+function customFood(){formDialog('Create a food from its label',field('name','Food name','text','','required maxlength="200"')+select('unit','Label basis unit',['g','ml'],'g')+field('basis','Label values are for this amount','number',100,'required min="0.1" max="10000" step="any"')+`<p class="footnote field wide">Enter values exactly as printed for that amount. Blank means unknown; enter 0 only when the label states zero. Energy uses kcal, not kJ.</p>`+NUTRIENTS.map(([k,n,u])=>field(k,n+' ('+u+')','number','','min="0" max="1000000" step="any"')).join(''),d=>{const basis=number(d.basis,.1,10000),nutrients={};for(const [k] of NUTRIENTS)nutrients[k]=d[k]===''?null:number(d[k],0,1e6)*100/basis;if(NUTRIENTS.every(([k])=>nutrients[k]==null))throw Error('Enter at least one nutrient value.');return upsert('library',{id:uid(),name:titleText(d.name),unit:d.unit,nutrients,source:'Your label · values entered by you',sourceUrl:''})})}
+let barcodeLast=0;
+async function barcode(){dialog('Find a packaged food',`<p class="footnote">Enter the barcode digits. Open Food Facts contains community-contributed data; compare with your package before logging. No camera access needed.</p><form id="barcode-form" class="row"><input name="code" inputmode="numeric" pattern="[0-9]{8,14}" required placeholder="8–14 barcode digits" aria-label="Barcode"><button class="primary">Look up</button></form><div id="barcode-result" class="footnote" role="status" style="margin-top:16px"></div>`);$('#barcode-form').onsubmit=async e=>{e.preventDefault();const out=$('#barcode-result');if(Date.now()-barcodeLast<5000){out.textContent='Please wait a few seconds before another lookup.';return}barcodeLast=Date.now();const code=new FormData(e.target).get('code');out.textContent='Looking up barcode…';const b=e.target.querySelector('button');b.disabled=true;try{const r=await fetch('https://world.openfoodfacts.org/api/v2/product/'+encodeURIComponent(code)+'.json?fields=code,product_name,brands,nutriments,nutrition_data_per,serving_size',{signal:AbortSignal.timeout(15000)});if(!r.ok)throw Error('Food service unavailable. Try again later or enter the label.');const j=await r.json();if(j.status!==1)throw Error('Barcode not found. You can enter values from the label.');const p=j.product,n=p.nutriments||{},map={kcal:['energy-kcal',1],protein:['proteins',1],carbs:['carbohydrates',1],fat:['fat',1],fiber:['fiber',1],sugar:['sugars',1],sodium:['sodium',1000],calcium:['calcium',1000],iron:['iron',1000],potassium:['potassium',1000],vitc:['vitamin-c',1000],vitd:['vitamin-d',1e6],b12:['vitamin-b12',1e6],magnesium:['magnesium',1000]};const nutrients={};for(const [k] of NUTRIENTS){const [key,m]=map[k]||['',1],v=n[key+'_100g'];nutrients[k]=typeof v==='number'&&Number.isFinite(v)&&v>=0?v*m:null;}if(nutrients.kcal==null&&typeof n['energy-kj_100g']==='number')nutrients.kcal=n['energy-kj_100g']/4.184;if(NUTRIENTS.every(([k])=>nutrients[k]==null))throw Error('This record has no usable nutrition values. Enter the label instead.');const f={id:'off-'+code,name:p.product_name||'Barcode '+code,source:'Open Food Facts · verify label',sourceUrl:'https://world.openfoodfacts.org/product/'+code,unit:'g',nutrients};if(!out.isConnected)return;out.innerHTML=`<b>${esc(f.name)}</b><p>Confirm whether the reference values are per 100 g or 100 ml on your package. The database field name does not distinguish these reliably.</p><label class="field">Reference unit<select id="off-unit"><option>g</option><option>ml</option></select></label><p>${NUTRIENTS.slice(0,4).map(([k,label,u])=>label+': '+(nutrients[k]==null?'unknown':fmt(nutrients[k])+' '+u)).join(' · ')}</p><button id="use-barcode" class="primary">Use this food</button>`;$('#use-barcode').onclick=()=>{f.unit=$('#off-unit').value;if(upsert('library',f))portion(f)};}catch(err){if(out.isConnected)out.textContent=err.message}finally{if(b.isConnected)b.disabled=false}}}
+function library(){dialog('Your food library',`<p class="footnote">Saved labels, barcode products, and recipes.</p><div class="row">${button('+ Label food','custom-food')}${button('+ Build recipe','recipe')}</div><div class="search-results">${state.library.map(f=>`<div class="item"><div class="body"><b>${esc(f.name)}</b><small>${esc(f.source)}</small></div>${button('Log','select-food',f.id,'ghost')}${button('×','remove-library',f.id,'ghost danger')}</div>`).join('')||empty('Your saved foods will appear here.')}</div>`)}
+function recipe(){let ingredients=[];dialog('Build a recipe',`<p class="footnote">Add weighed ingredients, then enter the final edible cooked weight. Nutrients are summed and divided by that final weight. Cooking losses and discarded liquid are not modeled.</p><form id="recipe-form" class="stack"><label class="field">Recipe name<input name="name" required maxlength="200"></label><div class="split"><label class="field">Ingredient<select id="ingredient">${[...CATALOG,...state.library].filter(f=>f.unit==='g').map(f=>`<option value="${esc(f.id)}">${esc(f.name)}</option>`).join('')}</select></label><label class="field">Ingredient grams<input id="ingredient-grams" type="number" min="0.1" step="any" value="100"></label></div><button type="button" id="add-ingredient">Add ingredient</button><div id="ingredient-list"></div><label class="field">Final edible recipe weight (g)<input name="yield" type="number" min="0.1" max="100000" step="any" required></label><p class="form-error" id="recipe-error" role="alert"></p><button class="primary">Save recipe</button></form>`);const show=()=>{$('#ingredient-list').innerHTML=ingredients.map((f,i)=>`<div class="item"><div class="body">${esc(f.name)} · ${fmt(f.amount)} g</div><button type="button" data-recipe-remove="${i}" aria-label="Remove ingredient">×</button></div>`).join('')};$('#add-ingredient').onclick=()=>{try{const f=[...CATALOG,...state.library].find(f=>f.id===$('#ingredient').value);if(!f)throw Error('Choose an ingredient');ingredients.push({...f,amount:number($('#ingredient-grams').value,.1,100000)});show();$('#recipe-error').textContent=''}catch(e){$('#recipe-error').textContent=e.message}};$('#ingredient-list').onclick=e=>{const b=e.target.closest('[data-recipe-remove]');if(b){ingredients.splice(Number(b.dataset.recipeRemove),1);show()}};$('#recipe-form').onsubmit=e=>{e.preventDefault();try{if(!ingredients.length)throw Error('Add at least one ingredient.');const d=new FormData(e.target),yieldG=number(d.get('yield'),.1,100000),t=totals(ingredients),nutrients={};for(const [k] of NUTRIENTS)nutrients[k]=t[k].known===t[k].total?t[k].value*100/yieldG:null;const f={id:uid(),name:titleText(d.get('name')),unit:'g',source:'Your recipe · calculated from ingredients',sourceUrl:'',nutrients,ingredients,yieldG};if(upsert('library',f)){close();render();notify('Recipe saved to your food library')}}catch(err){$('#recipe-error').textContent=err.message}}}
+function exportBackup(){const blob=new Blob([JSON.stringify(state,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='minimal-backup-'+dayKey()+'.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000)}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-action]');if(!b)return;const a=b.dataset.action,id=b.dataset.id;try{if(a==='close'){close();return}if(a==='nav'){tab=id;render();return}if(a==='task')taskEditor(id);else if(a==='event')eventEditor(id);else if(a==='note')noteEditor(id);else if(a==='workout')workoutEditor(id);else if(a==='food')foodPicker();else if(a==='select-food'){const f=[...state.library,...CATALOG].find(x=>x.id===id);if(f)portion(f)}else if(a==='portion'){const f=state.foods.find(x=>x.id===id);portion(f,f)}else if(a==='custom-food')customFood();else if(a==='library')library();else if(a==='recipe')recipe();else if(a==='barcode')barcode();else if(a==='goals')goals();else if(a==='preferences')preferences();else if(a==='export')exportBackup();else if(a==='water'){if(commit(s=>s.water.push({id:uid(),date:day,amount:Number(id)}))){render();notify(id+' ml logged')}}else if(a==='undo-water'){const last=waters().at(-1);if(last&&commit(s=>s.water=s.water.filter(x=>x.id!==last.id)))render()}else if(a==='habit')formDialog('A small daily habit',field('name','Habit','text','','required maxlength="100"'),d=>upsert('habits',{id:uid(),name:titleText(d.name)}));else if(a==='date'){day=id;render()}else if(a==='month'){const d=dateObj(month+'-01');d.setMonth(d.getMonth()+Number(id));month=dayKey(d).slice(0,7);render()}else if(a==='filter'){taskFilter=id;render()}else if(a.startsWith('remove-')){const collection={task:'tasks',event:'events',note:'notes',food:'foods',workout:'workouts',habit:'habits',library:'library'}[a.slice(7)];if(!collection)return;dialog('Delete this item?',`<p class="muted">This removes it from your saved records.</p><div class="dialog-footer">${button('Keep it','close')}<button class="danger" id="confirm-delete">Delete</button></div>`);$('#confirm-delete').onclick=()=>{if(commit(s=>s[collection]=s[collection].filter(x=>x.id!==id))){close();render();notify('Deleted')}}}}catch(err){notify(err.message)}});
+document.addEventListener('change',e=>{const b=e.target;if(b.dataset.check){const id=b.dataset.id;if(commit(s=>{if(b.dataset.check==='task')s.tasks.find(x=>x.id===id).done=b.checked;else if(b.dataset.check==='step')s.tasks.find(x=>x.id===id).steps[Number(b.dataset.index)].done=b.checked;else{const set=new Set(s.checks[day]||[]);b.checked?set.add(id):set.delete(id);s.checks[day]=[...set]}}))render();else b.checked=!b.checked;}if(b.id==='import-file'){const file=b.files[0];if(!file)return;if(file.size>5e6){notify('Backup is too large (maximum 5 MB).');return}file.text().then(text=>{const incoming=validate(JSON.parse(text));dialog('Restore this backup?',`<p>This will replace current records with ${incoming.tasks.length} tasks, ${incoming.notes.length} notes, and ${incoming.foods.length} meal entries.</p><p class="footnote">Export current data first if you want to keep a copy.</p><div class="dialog-footer">${button('Cancel','close')}<button class="primary" id="confirm-import">Replace and restore</button></div>`);$('#confirm-import').onclick=()=>{if(commit(s=>{for(const k of Object.keys(s))delete s[k];Object.assign(s,incoming)})){close();render();notify('Backup restored')}}}).catch(err=>notify('Cannot import: '+err.message))}});
+document.addEventListener('input',e=>{if(e.target.id==='note-search'){const q=e.target.value.toLowerCase();$('#note-list').innerHTML=noteCards(state.notes.filter(n=>(n.title+' '+n.body).toLowerCase().includes(q)))}});
+$('#day').onchange=e=>{if(e.target.value){day=e.target.value;month=day.slice(0,7);render()}};
+function moveDay(n){const d=dateObj(day);d.setDate(d.getDate()+n);day=dayKey(d);month=day.slice(0,7);render()}
+$('#prev-day').onclick=()=>moveDay(-1);$('#next-day').onclick=()=>moveDay(1);$('#today').onclick=()=>{day=dayKey();month=day.slice(0,7);render()};
+const reminded=new Set();setInterval(()=>{const now=Date.now();for(const e of state.events){const diff=now-new Date(e.start).getTime();if(e.remind&&diff>=0&&diff<60000&&!reminded.has(e.id+e.start)){reminded.add(e.id+e.start);notify('Starting now: '+e.title)}}},15000);
+window.addEventListener('storage',e=>{if(e.key===KEY&&e.newValue){try{const next=validate(JSON.parse(e.newValue));if($('#modal').open){notify('Data changed in another tab. Close this editor and refresh before saving.');storageOK=false;}else{state=next;render()}}catch{notify('Could not read changes from another tab.')}}});
+if(!CATALOG.length)notify('Food library did not load. Keep foods.js beside index.html, then refresh.');
+render();
+</script></body></html>
