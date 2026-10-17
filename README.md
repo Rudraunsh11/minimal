@@ -4,12 +4,17 @@ A calm space to plan your day, track your health, and organize your life.
 
 ## Run it
 
-Keep `index.html` and `foods.js` in the same folder. Open `index.html` in Safari or Chrome. For a stable local website address, run `python3 -m http.server 8000` from that folder, then visit http://localhost:8000.
+Keep `index.html`, `foods.js`, `growth.js`, and `growth.css` in the same folder. Open `index.html` in Safari or Chrome. For a stable local website address, run `python3 -m http.server 8000` from that folder, then visit http://localhost:8000.
 
 The hosted private version has its own browser storage. Use Settings → Export backup on the old address, then Settings → Restore on the new address to move records. Browsers do not automatically share records across addresses or devices.
 
+See [RELEASE-NOTES.md](RELEASE-NOTES.md) for the Rewards, Training and usability update, verification and launch gaps.
+
 ## Included
 
+- Rewards with streaks, levels, monthly challenges and badges; manual steps and learning journal.
+- Training sessions with individual sets, saved routines, previous performance and a rest timer.
+- Recoverable note drafts and searchable recipe ingredients.
 - Today dashboard with a selectable date.
 - Quick Add from every screen: search foods, repeat recent portions, or enter known calorie/macro totals for the complete entry. Missing nutrients remain unknown.
 - Beginner hints (on by default), an eight-step guided tour, and an isolated practice demo at `?demo=1`.
@@ -68,3 +73,6 @@ Browser tests cover legacy migration; task/checklist edits; cancel; plain-text n
 - `index.html`: interface, styling, calculations, and browser storage.
 - `foods.js`: compact USDA food snapshot with nutrient values and reference portions.
 - `README.md`: setup, calculations, sources, and limitations.
+
+- `growth.js` and `growth.css`: rewards, training sessions and note draft support.
+- `RELEASE-NOTES.md`: new behavior, verification and known limitations.
