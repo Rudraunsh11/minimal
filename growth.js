@@ -63,3 +63,25 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-growth]');
 // Keep note drafts separate from published notes so Cancel never overwrites a saved note.
 noteEditor=function(id){const key=id||'new',draft=state.noteDrafts[key],n=state.notes.find(x=>x.id===id)||{id:uid(),title:'',body:''};formDialog('A thought worth keeping',`<p class="footnote field wide" id="draft-status">${draft?'Your unfinished draft has been restored.':'Drafts are kept on this device while you type. Save adds the note to your collection.'}</p>`+field('title','Title','text',draft?.title??n.title,'required maxlength="160"')+field('body','Your note','textarea',draft?.body??n.body,'maxlength="50000"'),d=>commit(s=>{const item={...n,title:titleText(d.title),body:d.body,updated:new Date().toISOString()},i=s.notes.findIndex(x=>x.id===item.id);if(i<0)s.notes.unshift(item);else s.notes[i]=item;delete s.noteDrafts[key]}));$('#editor').addEventListener('input',()=>{const d=Object.fromEntries(new FormData($('#editor')));const ok=commit(s=>s.noteDrafts[key]={title:d.title,body:d.body});$('#draft-status').textContent=ok?'Draft saved on this device.':'Draft could not be saved. Keep this window open.'})};
 render();
+
+// A public developer credit. Profile fields are intentionally limited to verified details.
+const developerCredit=document.createElement('footer');
+developerCredit.className='developer-credit';
+developerCredit.innerHTML=`<button type="button" class="developer-tag" aria-expanded="false" aria-controls="developer-card"><span aria-hidden="true">&lt;/&gt;</span> Built by <b>@Rudraunsh11</b><span class="developer-label">Developer</span></button><section class="developer-card" id="developer-card" aria-label="About the developer" hidden><div class="developer-heading"><img src="https://avatars.githubusercontent.com/u/340280619?v=4" width="44" height="44" alt="" loading="lazy" referrerpolicy="no-referrer"><div><b>@Rudraunsh11</b><small>Creator &amp; developer of Minimal</small></div><button type="button" class="ghost developer-close" aria-label="Close developer details">×</button></div><p>A little more space for life.</p><a href="https://github.com/Rudraunsh11" target="_blank" rel="noopener noreferrer">View GitHub profile <span aria-hidden="true">↗</span></a><a href="mailto:rudraunshjadhav@gmail.com">rudraunshjadhav@gmail.com</a></section>`;
+document.querySelector('main').append(developerCredit);
+const developerTag=developerCredit.querySelector('.developer-tag'),developerCard=developerCredit.querySelector('.developer-card');
+let developerTimer,developerPinned=false,developerSuppressFocus=false;
+function positionDeveloperCard(){if(developerCard.hidden)return;const r=developerTag.getBoundingClientRect(),width=developerCard.offsetWidth,height=developerCard.offsetHeight;developerCard.style.left=Math.max(12,Math.min(r.left,innerWidth-width-12))+'px';developerCard.style.top=Math.max(12,Math.min(r.top-height-10,innerHeight-height-12))+'px'}
+function showDeveloperCard(){clearTimeout(developerTimer);developerCard.hidden=false;developerTag.setAttribute('aria-expanded','true');positionDeveloperCard()}
+function hideDeveloperCard(){clearTimeout(developerTimer);developerPinned=false;developerCard.hidden=true;developerTag.setAttribute('aria-expanded','false')}
+function scheduleDeveloperClose(){clearTimeout(developerTimer);developerTimer=setTimeout(()=>{if(!developerPinned&&!developerCredit.matches(':hover')&&!developerCredit.contains(document.activeElement))hideDeveloperCard()},250)}
+developerCredit.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch')showDeveloperCard()});
+developerCredit.addEventListener('pointerleave',scheduleDeveloperClose);
+developerCredit.addEventListener('focusin',()=>{if(!developerSuppressFocus)showDeveloperCard();developerSuppressFocus=false});
+developerCredit.addEventListener('focusout',scheduleDeveloperClose);
+developerTag.addEventListener('click',()=>{if(developerPinned)hideDeveloperCard();else{developerPinned=true;showDeveloperCard()}});
+developerCredit.querySelector('.developer-close').addEventListener('click',()=>{hideDeveloperCard();developerSuppressFocus=true;developerTag.focus()});
+document.addEventListener('pointerdown',e=>{if(!developerCredit.contains(e.target))hideDeveloperCard()});
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!developerCard.hidden){hideDeveloperCard();developerSuppressFocus=true;developerTag.focus()}});
+window.addEventListener('resize',positionDeveloperCard);
+window.addEventListener('scroll',positionDeveloperCard,true);
