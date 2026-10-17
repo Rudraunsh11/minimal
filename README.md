@@ -11,6 +11,9 @@ The hosted private version has its own browser storage. Use Settings → Export 
 ## Included
 
 - Today dashboard with a selectable date.
+- Quick Add from every screen: search foods, repeat recent portions, or enter known calorie/macro totals for the complete entry. Missing nutrients remain unknown.
+- Beginner hints (on by default), an eight-step guided tour, and an isolated practice demo at `?demo=1`.
+- Read START-HERE.md for a complete first-use walkthrough.
 - Tasks with priorities, dates, editable checklists, completion, and deletion.
 - Month calendar with editable events and in-app start reminders.
 - Searchable notes with explicit Save and Cancel.
