@@ -6,3 +6,6 @@ summary{cursor:pointer;padding:12px 0;font-weight:600}details p{margin-top:8px}.
 
 /* A single growing leaf turns the final letter into the brand mark. */
 .brand{line-height:1.25;white-space:nowrap}.wordmark-sprout{position:relative;display:inline-block;color:#435b40;margin-left:.015em}.wordmark-leaf{position:absolute;width:.34em;height:.29em;left:.12em;top:.08em;overflow:visible;fill:#729365;pointer-events:none}.brand b{margin-left:.045em}
+
+/* Transparent botanical wordmark, framed without changing the generated image. */
+.brand{padding:0 10px;line-height:1}.brand-logo{display:block;width:100%;max-width:170px;height:auto}@media(max-width:800px){.brand{padding:0;width:154px}}
