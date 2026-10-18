@@ -10,6 +10,7 @@ function remoteSnapshot(j){if(!j||!Number.isSafeInteger(j.revision)||j.revision<
 // uses it to select another account's database row.
 function accountHeaders(extra={}){return {'X-Minimal-Account':cloud.account,...extra}}
 function lockAccount(message='Your session changed. Sign in again to continue.'){
+ if(typeof dismissFocusCelebration==='function')dismissFocusCelebration(true);
  cloud.locked=true;cloud.ready=false;cloud.verifying=false;cloud.epoch++;clearTimeout(cloud.timer);
  if($('#modal')?.open)close();$('#dialog-content').innerHTML='';state=validate(defaults());render();
  document.body.classList.remove('account-verifying','booting');$('#boot-message')?.remove();
@@ -40,6 +41,7 @@ async function signOut(force=false){
  if(!force&&(cloud.pending||otherEdits)){
   dialog('Some changes have not synced',`<p>Export a copy or finish syncing before signing out. Signing out anyway clears this account’s device copy and can discard unsynced changes.</p><div class="row"><button type="button" data-cloud="export">Export current copy</button>${button('Stay signed in','close')}<button type="button" data-cloud="signout-anyway" class="danger">Sign out anyway</button></div>`);return;
  }
+ if(typeof dismissFocusCelebration==='function')dismissFocusCelebration(true);
  clearTimeout(cloud.timer);cloud.ready=false;cloud.locked=true;cloud.epoch++;
  // Tell sibling tabs to hide records before the dispatch-owned logout navigation.
  try{signalDevice('signout');MinimalDevice.purgeAccount()}catch{notify('Some device data could not be cleared. Use browser site-data settings after signing out.')}
@@ -110,6 +112,7 @@ const seenDeviceEvents=new Set();
 function signalDevice(event){const message={event,key:KEY,at:Date.now(),nonce:Math.random().toString(36).slice(2)};let delivered=false;try{localStorage.setItem('minimal.session-event.v1',JSON.stringify(message));delivered=true}catch{}try{if(deviceBus){deviceBus.postMessage(message);delivered=true}}catch{}if(!delivered)notify('Other tabs could not be notified. Close other Minimal tabs or clear browser site data too.')}
 function retireLegacyCopy(){if(!legacyCopy)return;try{MinimalDevice.retireLegacy(legacyCopy);legacyCopy=null}catch{cloudMessage('Account saved · an older browser copy still needs clearing in Data controls.',true)}}
 function clearDeviceHere(scope){
+ if(typeof dismissFocusCelebration==='function')dismissFocusCelebration(true);
  deviceCleared=true;cloud.ready=false;cloud.locked=true;cloud.epoch++;clearTimeout(cloud.timer);storageOK=false;
  if($('#modal')?.open)close();$('#dialog-content').innerHTML='';state=validate(defaults());render();
  try{MinimalDevice.clear(scope);cloudMessage('Device copy cleared · reload to restore your online account');$('#storage-error').innerHTML='<div class="banner">Minimal device data was cleared. Account records remain online. Downloaded backup files are not removed.</div>'}

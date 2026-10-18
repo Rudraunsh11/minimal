@@ -57,3 +57,6 @@ next-env.d.ts
 
 # Generated local benchmark reports
 /.test-results/
+
+# Generated static beta
+/vercel-beta/dist/

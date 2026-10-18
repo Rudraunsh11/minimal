@@ -74,10 +74,12 @@ let developerTimer,developerPinned=false,developerSuppressFocus=false;
 function positionDeveloperCard(){if(developerCard.hidden)return;const r=developerTag.getBoundingClientRect(),width=developerCard.offsetWidth,height=developerCard.offsetHeight;developerCard.style.left=Math.max(12,Math.min(r.left,innerWidth-width-12))+'px';developerCard.style.top=Math.max(12,Math.min(r.top-height-10,innerHeight-height-12))+'px'}
 function showDeveloperCard(){clearTimeout(developerTimer);developerCard.hidden=false;developerTag.setAttribute('aria-expanded','true');positionDeveloperCard()}
 function hideDeveloperCard(){clearTimeout(developerTimer);developerPinned=false;developerCard.hidden=true;developerTag.setAttribute('aria-expanded','false')}
-function scheduleDeveloperClose(){clearTimeout(developerTimer);developerTimer=setTimeout(()=>{if(!developerPinned&&!developerCredit.matches(':hover')&&!developerCredit.contains(document.activeElement))hideDeveloperCard()},250)}
-developerCredit.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch')showDeveloperCard()});
-developerCredit.addEventListener('pointerleave',scheduleDeveloperClose);
-developerCredit.addEventListener('focusin',()=>{if(!developerSuppressFocus)showDeveloperCard();developerSuppressFocus=false});
+function scheduleDeveloperClose(){clearTimeout(developerTimer);developerTimer=setTimeout(()=>{if(!developerPinned&&!developerTag.matches(':hover')&&!developerCard.matches(':hover')&&!developerTag.contains(document.activeElement)&&!developerCard.contains(document.activeElement))hideDeveloperCard()},250)}
+developerTag.addEventListener('pointerenter',e=>{if(e.pointerType!=='touch')showDeveloperCard()});
+developerCard.addEventListener('pointerenter',()=>clearTimeout(developerTimer));
+developerTag.addEventListener('pointerleave',scheduleDeveloperClose);
+developerCard.addEventListener('pointerleave',scheduleDeveloperClose);
+developerTag.addEventListener('focusin',()=>{if(!developerSuppressFocus)showDeveloperCard();developerSuppressFocus=false});
 developerCredit.addEventListener('focusout',scheduleDeveloperClose);
 developerTag.addEventListener('click',()=>{if(developerPinned)hideDeveloperCard();else{developerPinned=true;showDeveloperCard()}});
 developerCredit.querySelector('.developer-close').addEventListener('click',()=>{hideDeveloperCard();developerSuppressFocus=true;developerTag.focus()});

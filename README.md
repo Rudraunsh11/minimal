@@ -1,4 +1,4 @@
-> Release candidate — public/Vercel launch is not approved yet. See RELEASE-REVIEW.md and VERCEL-DEPLOYMENT.md.
+> Device-only Vercel beta selected by the owner on 18 October 2026; prepared and tested, deployment not yet verified. Root vercel.json builds only that beta. The separate Sites account service remains private. See VERCEL-DEPLOYMENT.md.
 
 # Minimal
 
@@ -14,7 +14,11 @@ Account saving is automatic. Hosted browser copies are temporary by default, wit
 
 Use the Node and pnpm versions in package.json. Install dependencies with pnpm install, then pnpm dev. The maintained local Sites plugin provides its documented development identity; it is not a production authentication system. Run pnpm test:security, pnpm test:privacy, pnpm test:food and pnpm test:packaged and pnpm test:storage. Production builds use the Sites build workflow.
 
-## Vercel migration
+## Vercel device-only beta
+
+Run `node vercel-beta/build.mjs` and `node vercel-beta/test.mjs`. Use the root Vercel configuration and reviewed PR branch. This beta saves only in one browser and excludes account sync/online archives.
+
+## Account-service migration
 
 This snapshot is not a ready-to-launch Vercel account service. It relies on Cloudflare bindings, the Sites worker runtime and trusted identity headers added by the hosting platform. A public Vercel deployment must never trust caller-supplied oai-authenticated-user headers.
 
