@@ -1,4 +1,4 @@
-> Device-only beta selected by the owner on 18 October 2026; Render is now the requested deployment provider, deployment not yet verified. Root vercel.json builds only that beta. The separate Sites account service remains private. See VERCEL-DEPLOYMENT.md.
+> Device-only beta selected by the owner on 18 October 2026; Live on Render at https://minimal-rudraunsh.onrender.com/ (device-only beta). Root vercel.json builds only that beta. The separate Sites account service remains private. See VERCEL-DEPLOYMENT.md.
 
 # Minimal
 
