@@ -1,4 +1,4 @@
-> Device-only Vercel beta selected by the owner on 18 October 2026; prepared and tested, deployment not yet verified. Root vercel.json builds only that beta. The separate Sites account service remains private. See VERCEL-DEPLOYMENT.md.
+> Device-only beta selected by the owner on 18 October 2026; Render is now the requested deployment provider, deployment not yet verified. Root vercel.json builds only that beta. The separate Sites account service remains private. See VERCEL-DEPLOYMENT.md.
 
 # Minimal
 
@@ -14,7 +14,11 @@ Account saving is automatic. Hosted browser copies are temporary by default, wit
 
 Use the Node and pnpm versions in package.json. Install dependencies with pnpm install, then pnpm dev. The maintained local Sites plugin provides its documented development identity; it is not a production authentication system. Run pnpm test:security, pnpm test:privacy, pnpm test:food and pnpm test:packaged and pnpm test:storage. Production builds use the Sites build workflow.
 
-## Vercel device-only beta
+## Render device-only beta
+
+Run `node render-beta/build.mjs` and `node render-beta/test.mjs`. See RENDER-DEPLOYMENT.md for Render settings.
+
+## Optional Vercel device-only beta
 
 Run `node vercel-beta/build.mjs` and `node vercel-beta/test.mjs`. Use the root Vercel configuration and reviewed PR branch. This beta saves only in one browser and excludes account sync/online archives.
 

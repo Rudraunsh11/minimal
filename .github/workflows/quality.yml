@@ -49,3 +49,5 @@ jobs:
           node-version: '24'
       - run: node vercel-beta/build.mjs
       - run: node vercel-beta/test.mjs
+      - run: node render-beta/build.mjs
+      - run: node render-beta/test.mjs
