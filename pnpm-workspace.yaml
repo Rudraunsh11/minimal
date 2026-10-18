@@ -1,0 +1,11 @@
+allowBuilds:
+  esbuild: true
+  sharp: true
+  unrs-resolver: true
+  workerd: true
+overrides:
+  sharp: 0.35.5
+  undici: 7.29.1
+  ws: 8.21.0
+  image-size: 2.0.3
+  esbuild: 0.28.1

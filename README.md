@@ -1,78 +1,33 @@
 # Minimal
 
-A calm space to plan your day, track your health, and organize your life.
+A daily planner and health log combining tasks, notes, calendar, focus sessions, nutrition, training and rewards. Dark mode is the default; light mode is optional.
 
-## Run it
+## Current hosting
 
-Keep `index.html`, `foods.js`, `growth.js`, and `growth.css` in the same folder. Open `index.html` in Safari or Chrome. For a stable local website address, run `python3 -m http.server 8000` from that folder, then visit http://localhost:8000.
+The live private account service runs on Sites with trusted platform identity and Cloudflare D1. The frontend is in `app-shell.html` and `public/`; the account API is in `app/api/state/route.ts`, schema in `db/`, and migrations in `drizzle/`. No personal records or credentials belong in this repository.
 
-The hosted private version has its own browser storage. Use Settings → Export backup on the old address, then Settings → Restore on the new address to move records. Browsers do not automatically share records across addresses or devices.
+Account saving is automatic. Hosted browser copies are temporary by default, with an explicit Remember this device option. Notes and unfinished drafts are part of synced account records. Export is optional for safekeeping, not a daily requirement. Read CHECKPOINT-02-DEVICE-PRIVACY.md for storage limitations.
 
-See [RELEASE-NOTES.md](RELEASE-NOTES.md) for the Rewards, Training and usability update, verification and launch gaps.
+## Development
 
-## Included
+Use the Node and pnpm versions in package.json. Install dependencies with pnpm install, then pnpm dev. The maintained local Sites plugin provides its documented development identity; it is not a production authentication system. Run pnpm test:security, pnpm test:privacy, pnpm test:food and pnpm test:packaged. Production builds use the Sites build workflow.
 
-- Rewards with streaks, levels, monthly challenges and badges; manual steps and learning journal.
-- Training sessions with individual sets, saved routines, previous performance and a rest timer.
-- Recoverable note drafts and searchable recipe ingredients.
-- Today dashboard with a selectable date.
-- Quick Add from every screen: search foods, repeat recent portions, or enter known calorie/macro totals for the complete entry. Missing nutrients remain unknown.
-- Beginner hints (on by default), an eight-step guided tour, and an isolated practice demo at `?demo=1`.
-- Read START-HERE.md for a complete first-use walkthrough.
-- Tasks with priorities, dates, editable checklists, completion, and deletion.
-- Month calendar with editable events and in-app start reminders.
-- Searchable notes with explicit Save and Cancel.
-- Daily habits and water logging, adjustable water goal, undo last drink.
-- Food search across 8,156 USDA records, source links, gram portions, reference portion weights, and calculations for calories, macros, fibre, sugar, sodium, calcium, iron, potassium, magnesium, and vitamins A (RAE), C, D, and B12.
-- Packaged-food barcode number lookup through Open Food Facts; reference unit must be confirmed against the package. Camera scanning is not included.
-- Custom label foods with configurable label amount and g/ml basis.
-- Recipes from ingredient weights and final cooked edible yield.
-- Meal grouping, editable portions, optional calorie/macro targets.
-- Exercise logs with sets, repetitions, external weight, notes, and weekly set counts.
-- JSON backup export/import with validation and replacement confirmation.
-- Migration from the earlier task and quick-note prototype on the same browser origin.
+## Vercel migration
 
-## Nutrition calculations
+This snapshot is not a ready-to-launch Vercel account service. It relies on Cloudflare bindings, the Sites worker runtime and trusted identity headers added by the hosting platform. A public Vercel deployment must never trust caller-supplied oai-authenticated-user headers.
 
-A food is stored as nutrient values per 100 g or 100 ml. Logged nutrients = reference nutrient × amount eaten ÷ 100. Millilitres are not silently converted to grams. Use weighed portions for USDA records, including liquid foods whose reference basis is mass.
+Before a Vercel launch: choose a free-tier identity and database provider; replace platform authentication and storage with server-side verified identity and a supported database adapter; migrate records safely; configure production security headers and secrets; then repeat account isolation, rate limiting, recovery, browser and device checks. Do not connect this branch and assume it provides equivalent cloud saving. No Vercel production deployment has been made.
 
-Reference portions use USDA gram weights. They are estimates of household measures, not a substitute for weighing your actual portion. Match raw versus cooked and the exact product/preparation.
+## Nutrition and licensing
 
-Recipe nutrients = sum of ingredient nutrients × 100 ÷ final edible recipe weight. Cooking nutrient losses and discarded liquid are not modeled. A recipe nutrient is unknown if any ingredient lacks it.
+Food search calculates calories and macros from standard portions and scales them when the amount changes. Match raw/cooked foods, product variant and units. Indian prepared dishes are labeled estimates; packaged references are market-specific. Food labels and databases contain uncertainty, so calculated values cannot guarantee the exact nutrients in an individual plate. See public/DATA-LICENSES.md and public/EXERCISE-LICENSE.md.
 
-Daily totals sum known values and show data coverage. Missing nutrients remain null (unknown), not zero. Precision is retained in calculations; rounding is for display. Reported source energy is used rather than forcing 4/4/9 macro arithmetic. Open Food Facts kJ-only energy is converted using 4.184 kJ per kcal. Vitamin A IU is not converted to RAE without composition data.
+## Release status
 
-No claim is made that these estimates are more accurate than Tracked or laboratory measurements. Food variation, label rounding, recipe yield, database errors, and portion measurement affect accuracy.
+See LAUNCH-CHECKLIST.md. Hosted two-account verification and later launch checkpoints remain open. The existing website stays private; a target date is not a launch guarantee.
 
-## Data sources and licensing
+## Source snapshot and local static preview
 
-USDA FoodData Central: SR Legacy April 2018 (7,793 records) and Foundation April 2026 (363 records). Data are public domain/CC0. Each record links to its FDC source. SR Legacy is historical, and similarly named Foundation records remain separate rather than overwriting their provenance.
+Snapshot of Sites source commit 409850d0d43c5b108cccfdaf8063890d63e6e909. Site-specific identity and runtime files are excluded. `.openai/hosting.json` retains only non-secret binding names for local development; register/select the correct Sites project before publishing through Sites.
 
-- https://fdc.nal.usda.gov/download-datasets/
-- https://fdc.nal.usda.gov/api-guide/
-
-Open Food Facts: on-demand barcode lookup, community-contributed data under ODbL. Check against the label. Requests send barcode digits to Open Food Facts; no notes, tasks, or meal history are sent. Saved Open Food Facts records retain attribution. Respect Open Food Facts licensing if redistributing database-derived records.
-
-- https://world.openfoodfacts.org/
-- https://world.openfoodfacts.org/data
-
-No private API keys are included. USDA search uses a bundled data snapshot rather than a metered API. Barcode lookup requires internet and may be unavailable or rate-limited.
-
-## Privacy and limits
-
-Records are saved in localStorage on the current browser/device/origin. GitHub stores code, not your logs. Browser storage can be cleared and private-browsing storage is temporary. Export backups regularly; backups contain your personal data.
-
-This is a personal-use first release, not a full multi-user production platform. Not connected: cross-device accounts, cloud database, background push/email reminders, external calendar sync, wearable health sync, AI meal photos, voice logging, coaching, payments, or a custom minimal.com domain. Reminders work only while the app is open and browser timers are running. No paid service was configured.
-
-## Verification
-
-Browser tests cover legacy migration; task/checklist edits; cancel; plain-text note rendering and search; event time validation; water and undo; habits; nutrition portion scaling; missing-data propagation; label normalization; recipe yield; goals; workout logs; reload persistence; backup round-trip; mobile overflow; and storage failure messages.
-
-## Project files
-
-- `index.html`: interface, styling, calculations, and browser storage.
-- `foods.js`: compact USDA food snapshot with nutrient values and reference portions.
-- `README.md`: setup, calculations, sources, and limitations.
-
-- `growth.js` and `growth.css`: rewards, training sessions and note draft support.
-- `RELEASE-NOTES.md`: new behavior, verification and known limitations.
+Root index.html and its adjacent assets also provide a device-only preview: run Python's static server on port 8765 in this directory and open http://127.0.0.1:8765/. This address saves in that browser only. It is not the online account service. The public/ copies are the assets served by the full account app. Keep both copies aligned when editing.
