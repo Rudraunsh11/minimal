@@ -1,0 +1,20 @@
+{
+  "date": "2026-10-18",
+  "release": "private-preview",
+  "publicLaunchApproved": false,
+  "gates": [
+    {"name":"Account/session regression tests","complete":true,"evidence":"tests/security-regression.mjs"},
+    {"name":"Hosted two-account isolation","complete":false,"reason":"Second authorized hosted test account is not available; sharing has not been widened."},
+    {"name":"Recovery implementation and synthetic fresh-database drill","complete":true,"evidence":"tests/recovery.mjs"},
+    {"name":"Independent production backup and operator restore","complete":false,"reason":"Off-site destination, provider recovery access and operating schedule remain unconfigured."},
+    {"name":"Application quota and retry controls","complete":true,"evidence":"tests/operations.mjs"},
+    {"name":"Provider quotas, billing and alerting","complete":false,"reason":"Provider-level controls and an external monitor have not been verified/configured."},
+    {"name":"Privacy/help implementation","complete":true,"evidence":"public/privacy.html"},
+    {"name":"Public privacy/operator approval","complete":false,"reason":"Jurisdictions, operator details and public disclosures require final review."},
+    {"name":"Real iPhone/Android/Safari and assistive technology QA","complete":false,"reason":"Local browser testing does not substitute for this evidence."},
+    {"name":"All-dependency security gate","complete":false,"reason":"GHSA-vfj7-8cjw-p6xm in build dependency braces 3.0.3; upstream reports no patched release."},
+    {"name":"Vercel account service migration","complete":false,"reason":"Current trusted Sites identity and D1 service are not Vercel-compatible. Deployment choice and connection pending."},
+    {"name":"Final audience/domain/load/rollback acceptance","complete":false,"reason":"Current site remains owner-private. No public/native store launch accepted."},
+    {"name":"Native app signing, testing and store submission","complete":false,"reason":"No signed iOS/Android app package or store developer account configuration."}
+  ]
+}

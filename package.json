@@ -15,7 +15,11 @@
     "test:food": "node tests/food-portions.mjs",
     "test:packaged": "node tests/packaged-foods.mjs",
     "test:privacy": "node tests/device-privacy.mjs",
-    "test:storage": "node tests/storage-growth.mjs"
+    "test:storage": "node tests/storage-growth.mjs",
+    "test": "node scripts/quality-check.mjs",
+    "test:recovery": "node tests/recovery.mjs",
+    "test:operations": "node tests/operations.mjs",
+    "check:release": "node scripts/release-gate.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",

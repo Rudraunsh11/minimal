@@ -1,3 +1,5 @@
+> Release candidate — public/Vercel launch is not approved yet. See RELEASE-REVIEW.md and VERCEL-DEPLOYMENT.md.
+
 # Minimal
 
 A daily planner and health log combining tasks, notes, calendar, focus sessions, nutrition, training and rewards. Dark mode is the default; light mode is optional.
@@ -32,8 +34,12 @@ Settings → Room to grow shows active-record storage. Hosted accounts can move 
 
 Normal JSON backups export active records only. Archive downloads are separate; archiving is not independent disaster recovery. Account erasure includes online archives. See CHECKPOINT-03-STORAGE-GROWTH.md for evidence and limitations.
 
-## Snapshot notes
+## Release verification
 
-Snapshot of Sites source commit a3f77dd1e6dc32d8464b09a1cb3c7b9bf68b29fb. The hosting manifest includes only non-secret D1/R2 binding names; select/register a Sites project before using its publishing workflow. No local database, runtime state, credentials or user archives are included.
+Run `pnpm test` for the regression suites and `pnpm check:release` for outstanding release gates. The latter intentionally fails until evidence is complete. Read RELEASE-REVIEW.md for the current security finding, backup/operations limits and Vercel migration requirements. Full encrypted account backup/restore includes online archives; ordinary JSON exports still include active records only. No claim of zero bugs, production off-site backups, Vercel deployment or native store approval is made.
 
-Root index.html and adjacent assets support a device-only static preview when served at http://127.0.0.1:8765/. The full account app uses app-shell.html and public/. Keep both frontend copies aligned. A static preview does not provide account saving or online archives. Vercel migration remains separate, as described above.
+## Snapshot and local preview
+
+Sites source: 250c243263b338d5cc727b841a791e0023cfe4d2. Site identity, credentials, local databases and runtime files are excluded. The sanitized hosting manifest supplies only binding names for development; select/register the correct Sites project before publishing through Sites.
+
+Run a static server on port 8765 at the root to view the device-only frontend at http://127.0.0.1:8765/. Its saving is local to that browser. The account-connected local app is pnpm dev and requires applying the generated local migrations. Root frontend assets mirror public/; keep them aligned. Neither static preview nor this ZIP automatically provides a Vercel account backend.

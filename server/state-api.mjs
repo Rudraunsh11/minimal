@@ -1,5 +1,7 @@
 import '../public/schema.js';
 import {archiveApi} from './archive-api.mjs';
+import {recoveryApi} from './recovery-api.mjs';
+import {MAX_INITIAL_ACCOUNTS,DAILY_REQUEST_BUDGET} from './limits.mjs';
 const schema=globalThis.MinimalSchema;
 const json=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff',...extra}});
 class BodyError extends Error{constructor(status){super('Invalid body');this.status=status}}
@@ -20,8 +22,8 @@ export async function stateApi(request,db,userId){
  if(!userId)return json({error:'Sign in to save your records.'},401);
  if(!db)return json({error:'Account storage is unavailable.'},503);
  const method=request.method,url=new URL(request.url);
- const archival=url.searchParams.has('archive');
- if(!['GET','PUT','DELETE'].includes(method)&&!(method==='POST'&&archival))return json({error:'Method not allowed.'},405,{Allow:'GET, PUT, DELETE'});
+ const archival=url.searchParams.has('archive'),recovery=url.searchParams.has('backup');
+ if(!['GET','PUT','DELETE'].includes(method)&&!(method==='POST'&&(archival||recovery)))return json({error:'Method not allowed.'},405,{Allow:'GET, PUT, DELETE'});
  const write=method!=='GET';
  if(write&&(request.headers.get('origin')!==url.origin||request.headers.get('sec-fetch-site')==='cross-site'))return json({error:'Only same-origin writes are allowed.'},403);
  // The authenticated identity remains the only database key. The client header
@@ -31,7 +33,10 @@ export async function stateApi(request,db,userId){
  if(expectedAccount!==null&&expectedAccount!==userId)return json({error:'The signed-in account changed. Reload to continue.',code:'ACCOUNT_CHANGED'},409);
  if(write&&!expectedAccount)return json({error:'Confirm the account before changing records.',code:'ACCOUNT_REQUIRED'},428);
  const now=Date.now(),windowStart=Math.floor(now/60000),kind=write?'write':'read';
+ if(!await allow(db,'global:daily',Math.floor(now/86400000),DAILY_REQUEST_BUDGET))return json({error:'The daily request budget has been reached. Your device copy is preserved. Try again after 00:00 UTC.'},429,{'Retry-After':String(Math.ceil((86400000-now%86400000)/1000))});
+ if(recovery&&(!await allow(db,'global:recovery',windowStart,10)||!await allow(db,'user:'+userId+':recovery',windowStart,3)))return json({error:'Please wait before another full backup or restore.'},429,{'Retry-After':'60'});
  if(!await allow(db,'global:'+kind,windowStart,write?300:1200)||!await allow(db,'user:'+userId+':'+kind,windowStart,write?60:120))return json({error:'Too many requests. Wait briefly before trying again.'},429,{'Retry-After':String(60-Math.floor(now/1000)%60)});
+ if(recovery)return recoveryApi(request,db,userId,readBounded);
  if(archival)return archiveApi(request,db,userId,readBounded);
  if(method==='GET'){
   if(url.searchParams.get('session')==='1')return json({accountId:userId,signedIn:true});
@@ -47,10 +52,11 @@ export async function stateApi(request,db,userId){
  }
  if(!/^application\/json(?:;|$)/i.test(request.headers.get('content-type')||''))return json({error:'Use application/json.'},415);
  const existing=await db.prepare('SELECT revision FROM minimal_user_states WHERE user_id=?').bind(userId).first();
+ if(!existing){const capacity=await db.prepare('SELECT COUNT(*) AS n FROM minimal_user_states').bind().first();if(capacity.n>=MAX_INITIAL_ACCOUNTS)return json({error:'Private preview capacity reached. Please contact the developer.'},503)}
  if((existing?.revision||0)!==expected)return json({error:'Records changed on another device.'},409);
  let payload;try{const text=await readBounded(request,schema.MAX_BYTES);payload=JSON.stringify(schema.validateState(JSON.parse(text)))}catch(e){const status=e instanceof BodyError?e.status:400;return json({error:status===413?'Request exceeds the account size limit.':status===408?'Request body took too long.':'Invalid records. Check the backup format and field limits.'},status)}
  // Conditional upsert prevents stale devices from overwriting a newer revision.
- const result=await db.prepare('INSERT INTO minimal_user_states (user_id,payload,revision,previous_payload,updated_at) VALUES (?,?,1,NULL,?) ON CONFLICT(user_id) DO UPDATE SET previous_payload=minimal_user_states.payload,payload=excluded.payload,revision=minimal_user_states.revision+1,updated_at=excluded.updated_at WHERE minimal_user_states.revision=? RETURNING revision').bind(userId,payload,Date.now(),expected).first();
+ const result=await db.prepare('INSERT INTO minimal_user_states (user_id,payload,revision,previous_payload,updated_at) SELECT ?,?,1,NULL,? WHERE (SELECT COUNT(*) FROM minimal_user_states)<? OR EXISTS(SELECT 1 FROM minimal_user_states WHERE user_id=?) ON CONFLICT(user_id) DO UPDATE SET previous_payload=minimal_user_states.payload,payload=excluded.payload,revision=minimal_user_states.revision+1,updated_at=excluded.updated_at WHERE minimal_user_states.revision=? RETURNING revision').bind(userId,payload,Date.now(),MAX_INITIAL_ACCOUNTS,userId,expected).first();
  if(!result)return json({error:'Records changed on another device. Your local copy is preserved.'},409);
  return json({accountId:userId,revision:result.revision});
 }

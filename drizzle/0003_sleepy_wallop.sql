@@ -1,0 +1,1 @@
+ALTER TABLE `minimal_user_states` ADD `restore_token` text;

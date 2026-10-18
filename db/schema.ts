@@ -7,6 +7,7 @@ export const userStates=sqliteTable('minimal_user_states',{
  payload:text('payload'),
  revision:integer('revision').notNull().default(0),
  previousPayload:text('previous_payload'),
+ restoreToken:text('restore_token'),
  updatedAt:integer('updated_at').notNull().default(0),
 });
 
