@@ -10,7 +10,7 @@ Account saving is automatic. Hosted browser copies are temporary by default, wit
 
 ## Development
 
-Use the Node and pnpm versions in package.json. Install dependencies with pnpm install, then pnpm dev. The maintained local Sites plugin provides its documented development identity; it is not a production authentication system. Run pnpm test:security, pnpm test:privacy, pnpm test:food and pnpm test:packaged. Production builds use the Sites build workflow.
+Use the Node and pnpm versions in package.json. Install dependencies with pnpm install, then pnpm dev. The maintained local Sites plugin provides its documented development identity; it is not a production authentication system. Run pnpm test:security, pnpm test:privacy, pnpm test:food and pnpm test:packaged and pnpm test:storage. Production builds use the Sites build workflow.
 
 ## Vercel migration
 
@@ -26,8 +26,14 @@ Food search calculates calories and macros from standard portions and scales the
 
 See LAUNCH-CHECKLIST.md. Hosted two-account verification and later launch checkpoints remain open. The existing website stays private; a target date is not a launch guarantee.
 
-## Source snapshot and local static preview
+## Storage growth
 
-Snapshot of Sites source commit 409850d0d43c5b108cccfdaf8063890d63e6e909. Site-specific identity and runtime files are excluded. `.openai/hosting.json` retains only non-secret binding names for local development; register/select the correct Sites project before publishing through Sites.
+Settings → Room to grow shows active-record storage. Hosted accounts can move older food and water logs into read-only online archives, then view them in Settings. No automatic pruning occurs. Active records have a 900,000-byte cap; accounts support at most ten archives, each bounded by the same source snapshot limit. Notes, tasks and training are not archived by this feature. This is a bounded initial release architecture, not unlimited storage.
 
-Root index.html and its adjacent assets also provide a device-only preview: run Python's static server on port 8765 in this directory and open http://127.0.0.1:8765/. This address saves in that browser only. It is not the online account service. The public/ copies are the assets served by the full account app. Keep both copies aligned when editing.
+Normal JSON backups export active records only. Archive downloads are separate; archiving is not independent disaster recovery. Account erasure includes online archives. See CHECKPOINT-03-STORAGE-GROWTH.md for evidence and limitations.
+
+## Snapshot notes
+
+Snapshot of Sites source commit a3f77dd1e6dc32d8464b09a1cb3c7b9bf68b29fb. The hosting manifest includes only non-secret D1/R2 binding names; select/register a Sites project before using its publishing workflow. No local database, runtime state, credentials or user archives are included.
+
+Root index.html and adjacent assets support a device-only static preview when served at http://127.0.0.1:8765/. The full account app uses app-shell.html and public/. Keep both frontend copies aligned. A static preview does not provide account saving or online archives. Vercel migration remains separate, as described above.

@@ -54,3 +54,6 @@ next-env.d.ts
 /.codex/
 /outputs/
 /work/
+
+# Generated local benchmark reports
+/.test-results/

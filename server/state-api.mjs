@@ -1,4 +1,5 @@
 import '../public/schema.js';
+import {archiveApi} from './archive-api.mjs';
 const schema=globalThis.MinimalSchema;
 const json=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff',...extra}});
 class BodyError extends Error{constructor(status){super('Invalid body');this.status=status}}
@@ -19,7 +20,8 @@ export async function stateApi(request,db,userId){
  if(!userId)return json({error:'Sign in to save your records.'},401);
  if(!db)return json({error:'Account storage is unavailable.'},503);
  const method=request.method,url=new URL(request.url);
- if(!['GET','PUT','DELETE'].includes(method))return json({error:'Method not allowed.'},405,{Allow:'GET, PUT, DELETE'});
+ const archival=url.searchParams.has('archive');
+ if(!['GET','PUT','DELETE'].includes(method)&&!(method==='POST'&&archival))return json({error:'Method not allowed.'},405,{Allow:'GET, PUT, DELETE'});
  const write=method!=='GET';
  if(write&&(request.headers.get('origin')!==url.origin||request.headers.get('sec-fetch-site')==='cross-site'))return json({error:'Only same-origin writes are allowed.'},403);
  // The authenticated identity remains the only database key. The client header
@@ -30,6 +32,7 @@ export async function stateApi(request,db,userId){
  if(write&&!expectedAccount)return json({error:'Confirm the account before changing records.',code:'ACCOUNT_REQUIRED'},428);
  const now=Date.now(),windowStart=Math.floor(now/60000),kind=write?'write':'read';
  if(!await allow(db,'global:'+kind,windowStart,write?300:1200)||!await allow(db,'user:'+userId+':'+kind,windowStart,write?60:120))return json({error:'Too many requests. Wait briefly before trying again.'},429,{'Retry-After':String(60-Math.floor(now/1000)%60)});
+ if(archival)return archiveApi(request,db,userId,readBounded);
  if(method==='GET'){
   if(url.searchParams.get('session')==='1')return json({accountId:userId,signedIn:true});
   const row=await db.prepare('SELECT payload,revision,previous_payload,updated_at FROM minimal_user_states WHERE user_id=?').bind(userId).first();
@@ -38,7 +41,7 @@ export async function stateApi(request,db,userId){
  }
  const revision=request.headers.get('if-match'),expected=Number(revision);if(revision===null||! /^(0|[1-9]\d*)$/.test(revision)||!Number.isSafeInteger(expected))return json({error:'A valid revision is required.'},428);
  if(method==='DELETE'){
-  const result=await db.prepare('UPDATE minimal_user_states SET payload=NULL,previous_payload=NULL,revision=revision+1,updated_at=? WHERE user_id=? AND revision=? RETURNING revision').bind(now,userId,expected).first();
+  const batch=await db.batch([db.prepare('DELETE FROM minimal_archives WHERE user_id=? AND EXISTS(SELECT 1 FROM minimal_user_states WHERE user_id=? AND revision=?)').bind(userId,userId,expected),db.prepare('UPDATE minimal_user_states SET payload=NULL,previous_payload=NULL,revision=revision+1,updated_at=? WHERE user_id=? AND revision=? RETURNING revision').bind(now,userId,expected)]);const result=batch[1]?.results?.[0];
   if(!result)return json({error:'Records changed elsewhere. Reload before deleting.'},409);
   return json({accountId:userId,revision:result.revision,deleted:true});
  }

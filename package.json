@@ -14,7 +14,8 @@
     "test:security": "node tests/security-regression.mjs",
     "test:food": "node tests/food-portions.mjs",
     "test:packaged": "node tests/packaged-foods.mjs",
-    "test:privacy": "node tests/device-privacy.mjs"
+    "test:privacy": "node tests/device-privacy.mjs",
+    "test:storage": "node tests/storage-growth.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.7.0",
