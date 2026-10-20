@@ -11,3 +11,6 @@
 @media(max-width:800px){.metric-label{font-size:8px}.metric-detail{font-size:10px}.hero-copy>.eyebrow{font-size:8px}.hero-copy>p,.section-heading p,.mind-layout p{font-size:12px}.hero-actions button{font-size:11px}.ring-legend{font-size:10px}.intro p.muted{font-size:12px}.card-head .ghost{font-size:11px}.item{font-size:13px}.empty{font-size:12px}.save-banner{font-size:10px}.essentials-strip>button{padding:19px 12px}}
 
 @media(max-width:800px){.hero-actions button,.card-head .ghost,.card.tint .row button,.mind-layout button,.item .ghost{min-height:44px}.day-picker button{min-height:44px}.hero-copy h2>span{display:inline-block}}
+
+/* A more readable, quietly expressive date on Today. */
+.studio-intro .today-date{font-family:Georgia,'Iowan Old Style','Palatino Linotype',serif;font-size:clamp(22px,2.4vw,29px);font-weight:400;line-height:1.4;letter-spacing:-.4px;text-transform:none;color:#65775b;margin:0 0 20px}.studio-intro .today-date time{font-variant-numeric:lining-nums}[data-theme=dark] .studio-intro .today-date{color:#b9cda6}@media(max-width:600px){.studio-intro .today-date{font-size:23px;margin-bottom:18px}}
