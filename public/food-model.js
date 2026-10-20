@@ -16,18 +16,18 @@
   const amount=quantity*basis;if(!Number.isFinite(amount)||amount<.1||amount>10000)throw Error('Choose a portion between 0.1 and 10,000 '+food.unit+'.');
   return {amount,nutrients:Object.fromEntries(KEYS.map(k=>[k,Number.isFinite(food.nutrients[k])?food.nutrients[k]*amount/100:null]))};
  }
- function regionalFoods(index,catalog){
-  const source=new Map(catalog.map(f=>[f.id,f]));
+ function regionalFoods(index,catalog,extraSources=[]){
+  const source=new Map([...catalog,...extraSources].map(f=>[f.id,f]));
   return index.flatMap(d=>{
    const b=d.blueprint;if(!b||!Number.isFinite(b.yieldG)||b.yieldG<=0)return [];
    // The Foundation sunflower-oil record has no nutrition values. These fixed
    // example profiles explicitly use the complete SR Legacy linoleic sunflower oil.
-   const ingredients=b.ingredients.map(([id,,amount])=>({food:source.get('usda-'+(id===1750349?171025:id)),amount}));
-   if(!ingredients.length||ingredients.some(x=>!x.food||!Number.isFinite(x.amount)||x.amount<=0))return [];
-   const nutrients=Object.fromEntries(KEYS.map(k=>[k,ingredients.every(x=>Number.isFinite(x.food.nutrients[k]))?ingredients.reduce((sum,x)=>sum+x.food.nutrients[k]*x.amount/100,0)*100/b.yieldG:null]));
+   const ingredients=b.ingredients.map(([id,,amount])=>({food:source.get(typeof id==='string'?id:'usda-'+(id===1750349?171025:id)),amount}));
+   if(!ingredients.length||ingredients.some(x=>!x.food||x.food.unit!=='g'||!Number.isFinite(x.amount)||x.amount<=0))return [];
+   const nutrients=Object.fromEntries(KEYS.map(k=>[k,ingredients.every(x=>Number.isFinite(x.food.nutrients[k])&&x.food.nutrients[k]>=0)?ingredients.reduce((sum,x)=>sum+x.food.nutrients[k]*x.amount/100,0)*100/b.yieldG:null]));
    if(KEYS.slice(0,4).some(k=>nutrients[k]===null))return [];
-   const serving=presets[d.name]||[/rice|pulao|biryani|khichdi|poha|pongal|puttu/i.test(d.name)?'1 bowl':'1 serving',/rice|pulao|biryani|khichdi|poha|pongal|puttu/i.test(d.name)?200:150];
-   return [{id:'dish-'+d.id,name:d.name,unit:'g',source:'Minimal Indian dish estimate · USDA ingredients',sourceUrl:'https://fdc.nal.usda.gov/',nutrients,portions:[serving],aliases:d.aliases||[],regions:d.states,estimated:true}];
+   const serving=d.portion||presets[d.name]||[/rice|pulao|biryani|khichdi|poha|pongal|puttu/i.test(d.name)?'1 bowl':'1 serving',/rice|pulao|biryani|khichdi|poha|pongal|puttu/i.test(d.name)?200:150];
+   return [{id:'dish-'+d.id,name:d.name,unit:'g',source:'Minimal home-style estimate · named ingredient references',sourceUrl:'https://fdc.nal.usda.gov/',nutrients,portions:[serving],aliases:d.aliases||[],regions:d.states,estimated:true,nutritionNote:d.nutritionNote||'Fixed ingredient formulation and cooked yield. Household ingredients and oil vary; cooking nutrient losses are not modelled.',referenceRecipe:{yieldG:b.yieldG,ingredients:ingredients.map(x=>({id:x.food.id,name:x.food.name,grams:x.amount}))}}];
   });
  }
  window.MinimalFood={portions,calculate,regionalFoods};

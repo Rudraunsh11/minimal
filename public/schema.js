@@ -11,6 +11,7 @@
   if(f.sourceUrl){try{const u=new URL(f.sourceUrl);if(!str(f.sourceUrl,2048)||u.protocol!=='https:'||u.username||u.password)fail('Unsafe source URL.')}catch{fail('Unsafe source URL.')}}
   if(f.quick!==undefined&&typeof f.quick!=='boolean')fail('Invalid quick entry.');
   if(f.portions!==undefined&&(!Array.isArray(f.portions)||f.portions.length>200||f.portions.some(p=>!Array.isArray(p)||p.length!==2||!str(p[0],200)||!num(p[1],.001,100000))))fail('Invalid reference portion.');
+  if(f.referenceRecipe!==undefined){const r=f.referenceRecipe;if(!obj(r)||!num(r.yieldG,.1,100000)||!Array.isArray(r.ingredients)||r.ingredients.length>200||r.ingredients.some(x=>!obj(x)||!id(x.id)||!str(x.name,200)||!num(x.grams,.001,100000)))fail('Invalid reference formulation.');}
   if(f.yieldG!==undefined&&!num(f.yieldG,.1,100000))fail('Invalid recipe yield.');
   if(f.ingredients!==undefined){if(!Array.isArray(f.ingredients)||f.ingredients.length>200)fail('Invalid recipe ingredients.');for(const x of f.ingredients){foodFields(x,depth+1);if(x.unit!=='g'||!num(x.amount,.1,100000))fail('Invalid ingredient amount.')}}
  }
