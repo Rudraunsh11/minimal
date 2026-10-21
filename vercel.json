@@ -9,7 +9,7 @@
       "headers": [
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; script-src 'self' 'sha256-8SNTpU0U1muZQM6HXMcNT76AeI3pVpKxU5zF0rZkWL8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://avatars.githubusercontent.com; connect-src 'self' https://world.openfoodfacts.org; object-src 'none'; frame-ancestors 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; base-uri 'none'; form-action 'self'"
+          "value": "default-src 'self'; script-src 'self' 'sha256-qrR8JjU/XSj51zkBxdC3f5OGSt7Ig9DvEKi1aQ15JA8='; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://avatars.githubusercontent.com; connect-src 'self' https://world.openfoodfacts.org; object-src 'none'; frame-ancestors 'self'; frame-src 'none'; worker-src 'none'; manifest-src 'self'; base-uri 'none'; form-action 'self'"
         },
         {
           "key": "X-Content-Type-Options",

@@ -10,3 +10,10 @@ const privacy=await readFile(new URL('privacy.html',out),'utf8');assert.ok(priva
 assert.ok(!(await readdir(out)).includes('cloud.js'));
 const headers=JSON.parse(await readFile(new URL('headers.json',import.meta.url),'utf8'));assert.ok(headers.some(h=>h.name==='Content-Security-Policy'&&h.path==='/*'));
 console.log('PASS: Render output references, exact inline CSP, browser-only policies and header configuration.');
+
+const schema=await readFile(new URL('schema.js',out),'utf8'),device=await readFile(new URL('beta-device.js',out),'utf8'),focus=await readFile(new URL('focus.js',out),'utf8');
+assert.ok(schema.includes('MAX_BYTES=20000000'));assert.ok(!schema.includes('900 KB'));assert.ok(!schema.includes('20 MB account limit'));
+assert.ok(html.includes('device-database.js?v=20261021-device-db1'));assert.ok(!html.includes('try{if(MinimalDevice.localOnly){'));
+assert.ok(device.includes('MinimalDatabase.initialize'));assert.ok(device.includes('deviceSaveReady'));assert.ok(focus.includes('!deviceSaveReady()'));
+assert.ok(!(await readdir(out)).includes('migration-fixture.html'));
+console.log('PASS: 20 MB database integration, safe boot, durable focus celebration and no migration fixture shipped.');
