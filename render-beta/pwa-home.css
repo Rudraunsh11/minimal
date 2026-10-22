@@ -1,4 +1,5 @@
 /* Compact install action to the left of the date, above the saving status. */
+.save-banner.device-save-footer{margin:24px 0 0;padding:0 8px;min-height:0;justify-content:center;text-align:center;font-size:11px;line-height:1.7;color:var(--muted)}
 .topbar.has-home-install>.row>[data-action=tour]{display:none}
 .topbar.has-home-install>.row{flex:0 0 auto}
 .topbar .home-install-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:10px 16px;border:1px solid #2d4938;border-radius:999px;background:#2d4938;color:#fff;font-size:13px;font-weight:600;line-height:1.25;white-space:nowrap;box-shadow:0 3px 12px #203b2912;transition:background .2s,box-shadow .2s,transform .2s}

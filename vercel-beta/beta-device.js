@@ -2,10 +2,12 @@
 'use strict';
 const cloud={enabled:false,ready:false,locked:true,verifying:false};
 let deviceDB=null,deviceWriter=null,deviceRow=null,deviceFailed=false,deviceCleared=false,deviceChannel=null;
-const deviceBanner=document.createElement('div');deviceBanner.className='save-banner';deviceBanner.setAttribute('role','status');deviceBanner.setAttribute('aria-live','polite');document.querySelector('.topbar').after(deviceBanner);
+const deviceBanner=document.createElement('div');deviceBanner.className='save-banner device-save-footer';deviceBanner.setAttribute('role','status');deviceBanner.setAttribute('aria-live','polite');document.querySelector('main').append(deviceBanner);
 function deviceDownload(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000)}
 function deviceMessage(info){
  const failed=info.error,waiting=info.pending;
+ deviceBanner.classList.toggle('device-save-footer',!failed&&!waiting);
+ if(failed||waiting)document.querySelector('.topbar').after(deviceBanner);else document.querySelector('main').append(deviceBanner);
  $('#save-state').textContent=failed?'Not saved — keep this tab open':waiting?'Saving on this device…':deviceCleared?'Device copy cleared':'Saved on this device';
  deviceBanner.replaceChildren();const text=document.createElement('p');text.style.margin='0';text.textContent=failed?'Saving paused. '+failed.message:waiting?'Saving your changes. Keep this tab open until Saved appears.':DEMO?'Practice demo · saved separately on this device':'Saved on this device · larger local database · no account sync or automatic server backup.';deviceBanner.append(text);
  deviceBanner.setAttribute('role',failed?'alert':'status');
