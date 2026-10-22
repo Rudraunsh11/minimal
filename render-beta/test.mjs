@@ -17,3 +17,6 @@ assert.ok(html.includes('device-database.js?v=20261021-device-db1'));assert.ok(!
 assert.ok(device.includes('MinimalDatabase.initialize'));assert.ok(device.includes('deviceSaveReady'));assert.ok(focus.includes('!deviceSaveReady()'));
 assert.ok(!(await readdir(out)).includes('migration-fixture.html'));
 console.log('PASS: 20 MB database integration, safe boot, durable focus celebration and no migration fixture shipped.');
+assert.ok(html.includes("worker-src 'self'"));assert.ok(html.includes('apple-touch-icon'));assert.ok(html.includes('pwa-client.js?v='));
+await import('../tests/pwa.mjs');
+await import('../tests/pwa-client.mjs');
