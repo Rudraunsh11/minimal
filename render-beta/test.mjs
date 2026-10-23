@@ -20,3 +20,5 @@ console.log('PASS: 20 MB database integration, safe boot, durable focus celebrat
 assert.ok(html.includes("worker-src 'self'"));assert.ok(html.includes('apple-touch-icon'));assert.ok(html.includes('pwa-client.js?v='));
 await import('../tests/pwa.mjs');
 await import('../tests/pwa-client.mjs');
+
+await import('../tests/ux-regression.mjs');

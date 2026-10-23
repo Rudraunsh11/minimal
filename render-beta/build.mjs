@@ -21,5 +21,7 @@ for(const file of ['index.html','privacy.html','support.html','release-status.ht
  await writeFile(new URL(file,out),html);
 }
 const deviceFile=new URL('beta-device.js',out);await writeFile(deviceFile,(await readFile(deviceFile,'utf8')).replace('Barcode lookup and reopening offline are not supported yet.','Barcode lookup needs internet. Reopening offline works after Settings confirms offline access is ready.'));
+for(const name of ['ux-model.js','ux-fixes.js','ux-fixes.css'])await writeFile(new URL(name,out),await readFile(new URL(name,import.meta.url)));
+const appFile=new URL('index.html',out);let appHTML=await readFile(appFile,'utf8');appHTML=appHTML.replace('</head>','<link rel="stylesheet" href="ux-fixes.css"></head>').replace('</body>','<script src="ux-model.js"></script><script src="ux-fixes.js"></script></body>');await writeFile(appFile,appHTML);
 await buildPWA(out);
 console.log('Built Render device-only beta; custom response headers are listed in render-beta/headers.json.');

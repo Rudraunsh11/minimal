@@ -6,8 +6,13 @@ const deviceBanner=document.createElement('div');deviceBanner.className='save-ba
 function deviceDownload(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value)],{type:'application/json'})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),10000)}
 function deviceMessage(info){
  const failed=info.error,waiting=info.pending;
- deviceBanner.classList.toggle('device-save-footer',!failed&&!waiting);
- if(failed||waiting)document.querySelector('.topbar').after(deviceBanner);else document.querySelector('main').append(deviceBanner);
+ const draft=$('#draft-status');if(draft)draft.textContent=failed?'Draft not saved. Keep this window open.':waiting?'Saving draft on this device…':'Draft saved on this device.';
+ deviceBanner.classList.add('device-save-footer');
+ // Keep the disclosure in one place: moving it on each draft save shifts the editor.
+ deviceBanner.classList.toggle('device-save-alert',!!failed);
+ const signature=String(failed?.message||'')+'|'+!!waiting+'|'+deviceCleared;
+ if(deviceBanner.dataset.status===signature)return;
+ deviceBanner.dataset.status=signature;
  $('#save-state').textContent=failed?'Not saved — keep this tab open':waiting?'Saving on this device…':deviceCleared?'Device copy cleared':'Saved on this device';
  deviceBanner.replaceChildren();const text=document.createElement('p');text.style.margin='0';text.textContent=failed?'Saving paused. '+failed.message:waiting?'Saving your changes. Keep this tab open until Saved appears.':DEMO?'Practice demo · saved separately on this device':'Saved on this device · larger local database · no account sync or automatic server backup.';deviceBanner.append(text);
  deviceBanner.setAttribute('role',failed?'alert':'status');
@@ -15,7 +20,7 @@ function deviceMessage(info){
 }
 function lockDevice(message){storageOK=false;deviceFailed=true;cloud.locked=true;deviceMessage({pending:false,error:new Error(message)})}
 function deviceSaveReady(){return !!deviceWriter&&deviceWriter.idle()&&!deviceFailed&&!deviceCleared}
-function makeWriter(row){return MinimalDatabase.writer({db:deviceDB,key:KEY,revision:row.revision,validate,onStatus:deviceMessage,onSaved:r=>{deviceRow=r;if(tab==='focus')setTimeout(()=>{if(deviceSaveReady())render()},0);deviceChannel?.postMessage({key:KEY,revision:r.revision})}})}
+function makeWriter(row){return MinimalDatabase.writer({db:deviceDB,key:KEY,revision:row.revision,validate,onStatus:deviceMessage,onSaved:r=>{deviceRow=r;if(tab==='focus')setTimeout(()=>{if(deviceSaveReady()&&!$('#modal').open)render()},0);deviceChannel?.postMessage({key:KEY,revision:r.revision})}})}
 commit=function(fn){
  if(!storageOK||!deviceWriter||deviceFailed||deviceCleared){notify('Editing is paused to protect your records. Check the saving message above.');return false}
  if(deviceWriter.info().error){notify('Resolve the failed save above before editing more.');return false}

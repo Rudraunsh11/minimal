@@ -1,0 +1,33 @@
+/* A consistent viewport, an anchored editor and no moving save notices. */
+html{scrollbar-gutter:stable;overscroll-behavior-y:none;-webkit-text-size-adjust:100%;text-size-adjust:100%}
+body{min-width:0;overflow-x:clip}
+button,a,input,select,summary,label{touch-action:manipulation}
+.layout{width:100%;max-width:1680px;margin-inline:auto;min-width:0}
+main,#view,.card,.fields,.field,.row>*{min-width:0}
+input,textarea,select{max-width:100%;box-sizing:border-box}
+input:not([type=checkbox]):not([type=radio]),textarea,select{font-size:16px!important}
+body.editing-modal{position:fixed;top:var(--locked-scroll);left:0;right:0;overflow:hidden;overscroll-behavior:none}
+body.editing-modal main,body.editing-modal .sidebar{pointer-events:none}
+dialog{overscroll-behavior:contain;overflow-y:auto;overflow-x:clip;scrollbar-gutter:stable;box-sizing:border-box}
+dialog[open]{position:fixed;inset:auto;margin:0;left:50%;top:calc(var(--editor-top,0px) + 12px);translate:-50% 0;max-height:calc(var(--editor-height,100dvh) - 24px);width:min(720px,calc(100% - 24px));animation:none!important;transform:none!important;overflow-anchor:none}
+#dialog-content{padding:24px;overflow-wrap:anywhere;min-width:0}
+#dialog-content .dialog-head{position:sticky;top:-24px;background:var(--paper,#fff);z-index:2;padding-block:12px;margin-top:-12px}
+#dialog-content .fields{grid-template-columns:repeat(2,minmax(0,1fr))}
+#dialog-content .dialog-footer{flex-wrap:wrap;gap:10px}
+dialog.note-editor{width:min(940px,calc(100% - 24px))}
+dialog.note-editor textarea[name=body]{min-height:clamp(220px,45dvh,540px);line-height:1.8;resize:vertical}
+#draft-status{min-height:3em;margin:0}
+.save-banner.device-save-footer{min-height:42px;contain:layout}
+.save-banner.device-save-alert{position:fixed;bottom:92px;left:max(12px,calc((100vw - 900px)/2));right:max(12px,calc((100vw - 900px)/2));z-index:100;background:var(--paper,#fff);border:2px solid #b75b45;border-radius:12px;padding:16px;box-shadow:0 8px 30px #0003;max-height:30dvh;overflow:auto}
+.selected-day-notice{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--muted);padding:12px 0}
+.selected-day-notice button{min-height:44px}
+.focus-history-row{flex-wrap:wrap}.focus-history-row>div{flex-basis:50%}
+#nav.mobile-fixed-nav{position:fixed!important;inset:auto 0 0!important;z-index:30;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:var(--paper,#fff);border-top:1px solid var(--line);transform:none!important;display:block}
+#nav.mobile-fixed-nav .nav-primary{display:grid;grid-template-columns:repeat(6,minmax(0,1fr))}
+#nav.mobile-fixed-nav .nav-secondary{display:none!important}
+#nav.mobile-fixed-nav button,#nav.mobile-fixed-nav [data-experience=more]{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:10px;padding:7px 2px;min-height:54px}
+#nav.mobile-fixed-nav button span{font-size:10px;text-align:center}
+#nav.mobile-fixed-nav button svg{width:21px;height:21px}
+body.editing-modal #nav.mobile-fixed-nav{visibility:hidden}
+@media(max-width:600px){#dialog-content{padding:18px}#dialog-content .dialog-head{top:-18px}#dialog-content .fields{grid-template-columns:minmax(0,1fr)}.field{width:100%}.dialog-footer>button{flex:1;min-height:48px}.note-editor .dialog-footer{position:sticky;bottom:-18px;background:var(--paper,#fff);padding-block:12px}dialog.note-editor textarea[name=body]{min-height:230px}}
+@media(prefers-reduced-motion:reduce){dialog *{animation:none!important;transition:none!important}}
