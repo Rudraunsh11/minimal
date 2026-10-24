@@ -51,3 +51,7 @@ Run `pnpm test` for the regression suites and `pnpm check:release` for outstandi
 Sites source: 250c243263b338d5cc727b841a791e0023cfe4d2. Site identity, credentials, local databases and runtime files are excluded. The sanitized hosting manifest supplies only binding names for development; select/register the correct Sites project before publishing through Sites.
 
 Run a static server on port 8765 at the root to view the device-only frontend at http://127.0.0.1:8765/. Its saving is local to that browser. The account-connected local app is pnpm dev and requires applying the generated local migrations. Root frontend assets mirror public/; keep them aligned. Neither static preview nor this ZIP automatically provides a Vercel account backend.
+
+## Copyright
+
+Copyright (c) 2026 Rudraunsh Jadhav. See [COPYRIGHT.md](COPYRIGHT.md). Third-party materials retain their own notices and license terms.
