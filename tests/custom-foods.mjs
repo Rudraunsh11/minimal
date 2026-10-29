@@ -1,0 +1,16 @@
+import assert from 'node:assert/strict';
+import {readFileSync} from 'node:fs';
+import vm from 'node:vm';
+const box={window:{}};vm.runInNewContext(readFileSync(new URL('../public/food-model.js',import.meta.url),'utf8'),box);
+const {customFood,calculate,portions}=box.window.MinimalFood;
+const input={name:'My bar',servingLabel:'1 bar',basis:50,unit:'g',kcal:210,protein:20,carbs:18,fat:7};
+const food=customFood(input,'custom-bar');
+assert.equal(food.nutrients.kcal,420);assert.equal(portions(food)[0][1],50);
+for(const q of [.5,1,2])for(const key of ['kcal','protein','carbs','fat'])assert.equal(calculate(food,q,50).nutrients[key],input[key]*q);
+assert.equal(food.nutrients.iron,null);
+const partial=customFood({...input,kcal:0,protein:'',carbs:'',fat:''},'zero');
+assert.equal(calculate(partial,2,50).nutrients.kcal,0);assert.equal(calculate(partial,2,50).nutrients.protein,null);
+const drink=customFood({...input,name:'My drink',basis:200,unit:'ml'},'drink');assert.equal(calculate(drink,100,1).nutrients.kcal,105);
+for(const patch of [{basis:0},{basis:Infinity},{unit:'cups'},{name:' '},{kcal:-1},{protein:NaN},{carbs:Infinity},{kcal:'',protein:'',carbs:'',fat:''},{basis:.1,kcal:1000000}])assert.throws(()=>customFood({...input,...patch},'invalid'));
+const snapshot=JSON.parse(JSON.stringify(food));customFood({...input,kcal:180},food.id);assert.equal(snapshot.nutrients.kcal,420);
+console.log('PASS: custom serving conversions, partial nutrition, known zero, ml, bounds and historical snapshot independence.');

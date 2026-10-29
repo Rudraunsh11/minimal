@@ -26,3 +26,5 @@ await import('../tests/ux-regression.mjs');
 await import('../supabase-foundation/crypto-store-test.mjs');
 
 await import('../supabase-foundation/auth-client-test.mjs');
+
+await import("../tests/custom-foods.mjs");

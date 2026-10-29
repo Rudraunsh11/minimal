@@ -55,3 +55,7 @@ Run a static server on port 8765 at the root to view the device-only frontend at
 ## Copyright
 
 Copyright (c) 2026 Rudraunsh Jadhav. See [COPYRIGHT.md](COPYRIGHT.md). Third-party materials retain their own notices and license terms.
+
+## License
+
+Minimal's original project contributions are available under the [MIT License](LICENSE), copyright (c) 2026 Rudraunsh Jadhav. Copying, modification and commercial reuse are permitted subject to the license, including retention of its copyright and permission notice. Third-party software and data retain their own terms; see [DATA-LICENSES.md](DATA-LICENSES.md) and the accompanying upstream license files.

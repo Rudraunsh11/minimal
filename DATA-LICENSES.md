@@ -20,7 +20,7 @@ These profiles are labelled **estimates**. They are original example recipes, no
 
 MyFitnessPal data is not imported. Its developer portal requires contacting the provider for API integration; no API access or redistribution permission has been supplied. See [MyFitnessPal developer portal](https://www.myfitnesspal.com/apps/api/documents) and [Terms](https://www.myfitnesspal.com/terms-of-service).
 
-The Indian discovery index, recipe blueprints and geometric artwork were created for this project. No new public license is granted for Minimal's original code or creative work by this source-attribution document. USDA source facts remain public domain, and the exercise dataset keeps its upstream Unlicense.
+The Indian discovery index, recipe blueprints and geometric artwork were created for this project. Minimal's original project contributions are licensed under the MIT License; see the root LICENSE file. This does not replace the terms of third-party materials. USDA source facts remain public domain, and the exercise dataset keeps its upstream Unlicense.
 
 Regional background references, not imported nutrition datasets: [Incredible India](https://www.incredibleindia.gov.in/), [ICMR–NIN](https://www.nin.res.in/) and the [Indian Nutrient Databank project](https://www.anuvaad.org.in/indian-diet-data/).
 

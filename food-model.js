@@ -16,6 +16,22 @@
   const amount=quantity*basis;if(!Number.isFinite(amount)||amount<.1||amount>10000)throw Error('Choose a portion between 0.1 and 10,000 '+food.unit+'.');
   return {amount,nutrients:Object.fromEntries(KEYS.map(k=>[k,Number.isFinite(food.nutrients[k])?food.nutrients[k]*amount/100:null]))};
  }
+ function customFood(input,id){
+  const name=String(input.name||'').trim(),label=String(input.servingLabel||'').trim()||'1 serving';
+  if(!name||name.length>200||label.length>200)throw Error('Enter a food name and a serving label of up to 200 characters.');
+  if(!['g','ml'].includes(input.unit))throw Error('Choose grams or millilitres.');
+  const basis=Number(input.basis);
+  if(!Number.isFinite(basis)||basis<.1||basis>10000)throw Error('Enter a serving size between 0.1 and 10,000.');
+  const nutrients=Object.fromEntries(KEYS.map(k=>[k,null]));let known=0;
+  for(const k of KEYS.slice(0,4)){
+   const raw=input[k];if(raw==null||String(raw).trim()==='')continue;
+   const value=Number(raw),normalized=value*100/basis;
+   if(!Number.isFinite(value)||value<0||value>1000000||normalized>1000000)throw Error('Enter valid, non-negative nutrition values.');
+   nutrients[k]=normalized;known++;
+  }
+  if(!known)throw Error('Enter calories or at least one macro. Leave unknown values blank.');
+  return {id,name,unit:input.unit,nutrients,portions:[[label,basis]],customFood:true,source:'Custom food · values entered by you',sourceUrl:''};
+ }
  function regionalFoods(index,catalog,extraSources=[]){
   const source=new Map([...catalog,...extraSources].map(f=>[f.id,f]));
   return index.flatMap(d=>{
@@ -30,5 +46,5 @@
    return [{id:'dish-'+d.id,name:d.name,unit:'g',source:'Minimal home-style estimate · named ingredient references',sourceUrl:'https://fdc.nal.usda.gov/',nutrients,portions:[serving],aliases:d.aliases||[],regions:d.states,estimated:true,nutritionNote:d.nutritionNote||'Fixed ingredient formulation and cooked yield. Household ingredients and oil vary; cooking nutrient losses are not modelled.',referenceRecipe:{yieldG:b.yieldG,ingredients:ingredients.map(x=>({id:x.food.id,name:x.food.name,grams:x.amount}))}}];
   });
  }
- window.MinimalFood={portions,calculate,regionalFoods};
+ window.MinimalFood={portions,calculate,regionalFoods,customFood};
 })();
