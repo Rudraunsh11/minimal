@@ -7,8 +7,8 @@
 - Database objects are installed. Existing website data was not uploaded. The first verification found zero cloud records.
 - Security and performance advisors returned no findings after migration. This is an automated check, not an independent audit.
 - `cloud-crypto.js`, `cloud-store.js` and `auth-client.js` are prepared and locally tested adapters. **They are not loaded by the live Render app.** The live app remains device-only.
-- The chosen public sign-in route is Google OAuth, because the owner does not own an email sender domain. Google provider configuration and an actual browser sign-in are still required.
-- Current local browser records and JSON downloads remain unencrypted. Cloud encryption does not change that fact.
+- The owner now prefers email/password registration as the main flow. The adapter supports signup, signin, confirmation resend and password recovery, but production SMTP, account UI and real delivery acceptance are still required. A Google web client has been created with owner approval; configuring that optional provider still requires owner-side secret entry.
+- The Render private-storage checkpoint adds optional local encryption and encrypted file backups. Users who have not enabled it still have unencrypted browser records; previously downloaded plaintext JSON files remain unchanged. Cloud encryption alone does not change local saving.
 
 ## Security boundaries
 
@@ -70,3 +70,11 @@ The 20 MB figure is a per-snapshot application budget, not allocated server stor
 A live cloud record and its previous version are not an independent off-site backup. Supabase Free does not include automatic database backups and inactive projects can pause. Add scheduled independent encrypted backups and test restoration before calling disaster recovery complete.
 
 No paid plan, domain, email service or extra database has been purchased.
+
+## Email/password launch gate — 3 November 2026
+
+`auth-client.js` supports email/password signup and signin, confirmation resend and password-reset requests with fixed production return URLs. It refuses unverified users and unexpected auto-confirmed signup sessions; password changes require a recovery session or the current password. The adapter is still not loaded by the public app. It does not create a public user roster, persist passwords or upload records when someone signs in.
+
+Supabase's default sender is limited to project-team addresses and is unsuitable for public signup. Configure a verified production sender, then verify confirmation, resend, forgotten-password delivery, expired links, denied sessions, throttling and two real users before activation. Do not disable confirmation to bypass email delivery. Authorized operators can view registrations in Supabase Authentication → Users; passwords must never be readable.
+
+Production recovery return URL: `https://minimal-rudraunsh.onrender.com/account-recovery.html`. That page and its SDK integration must be implemented and reviewed before enabling the adapter. The account password must not silently become the private-storage passphrase. Recovery of one does not recover the other.

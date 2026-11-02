@@ -1,18 +1,22 @@
-# Minimal launch checklist — 18 October 2026
+# Minimal release checklist — 3 November 2026
 
-The owner authorized proceeding through all remaining checks without pausing between checkpoints, then asked to prioritize a Vercel release today with no further feature expansion. Implementation completion is distinct from public-launch acceptance. Existing Sites access remains owner-private.
+This checklist covers the public Render device app and the planned Supabase account service. The earlier private Sites checklist is preserved in LAUNCH-CHECKLIST-SITES-20261018.md. Its old Vercel, 900 KB and private-hosted account assumptions do not describe the current Render release.
 
-| Checkpoint | Completed work | Open release evidence |
+| Area | Implementation / evidence | Remaining acceptance |
 | --- | --- | --- |
-| 1. Accounts/session isolation | Server account binding, origin checks, revisions, client epoch locks and regression tests | Two authorized hosted accounts; Vercel identity/database migration |
-| 2. Device privacy | Temporary default, remember opt-in, scoped clearing, cross-tab locks, hidden-editor cleanup including Escape | Real shared-device/session-restore verification |
-| 3. Storage growth | 900 KB active cap, 10 online food/water archives, warnings, three-year exact-preservation replay | Hosted maximum-capacity/load tests; larger non-food histories remain bounded |
-| 4. Backups/recovery | Encrypted full-account backup/transactional restore including archives; synthetic database-loss drill | Automatic independent production backup and operator restore drill |
-| 5. Operations/quotas | Daily request budget, preview account cap, rate limits, Retry-After/backoff, minimal health endpoint, tests | Provider billing/quotas, logs/alerts and external monitoring verification |
-| 6. Privacy/user information | Current data notice, help, release status and security contact | Final operator/jurisdiction/provider-retention approval |
-| 7. Quality/accessibility | Script/asset/HTTP tests, CSP hash check, dialog labels, Escape cleanup, local browser review | Actual iPhone/Android/Safari/screen-reader, weak network and full feature acceptance matrix |
-| 8. Security/licensing | Injection/auth/CSRF/size/race tests, source notices, production-manifest audit, full dependency scan | Open braces build-dependency advisory (no upstream patched release); final public redistribution review |
-| 9. Release operations | Pinned-action CI workflow, explicit release gate, packaging and operator runbook | Vercel connection + saving choice, compatible backend, production domain/audience, load and rollback acceptance |
-| Native store release | Responsive frontend and install manifest; submission requirements documented | Native binaries, signing, entitlements, privacy declarations, beta tests and store review |
+| Device saving | IndexedDB, 20 MB plaintext record budget, revision checks, save failures/retry, previous save; tests/device-database.mjs | Physical low-memory devices, eviction and multi-tab acceptance |
+| Installation / offline | Verified app shell, manifest/icons, explicit multi-window-safe update; tests/pwa.mjs and pwa-client.mjs | Actual iPhone/Android installation, airplane mode, reopening |
+| Editing / navigation | Modal background lock, stable notes, activity date guards, reset-to-today, mobile navigation, history deletion; tests/ux-regression.mjs | Physical keyboard, zoom, accessibility and all-feature acceptance |
+| Food logging | Search, source references, adjustable portions, custom food library, unknown nutrition stays unknown; food/custom/regional tests | Nutrition catalogue review; homemade dishes remain estimates |
+| Local encryption / file recovery | Optional private storage, recovery key, encrypted backup and explicit restore; CHECKPOINT-04-LOCAL-ENCRYPTION.md | Independent crypto review and physical-device acceptance |
+| Account sign-in | Google web client created with owner approval; email/password, confirmation, resend and reset adapter implemented/tested in supabase-foundation | Owner provider secrets, production email sender, account screens, real verification/reset delivery, two-user HTTP testing. Not loaded by the public app |
+| Cloud data protection | Supabase forced RLS, live-session ownership checks, encrypted snapshots, revision/tombstone controls; hosted synthetic isolation tests | Opt-in migration, per-account local separation, safe queue/conflict UI, account-switch/logout/delete, public integration |
+| Backups / disaster recovery | Local encrypted file export and synthetic fresh-database recovery | Independent scheduled cloud backup destination, retention and operator restore drill |
+| Capacity / operations | App size/record limits; Supabase last measured about 11 MB, zero real cloud records; no unlimited-capacity claim | Server-wide quotas, usage alerts, signup/abuse limits, live monitoring and load acceptance |
+| Security / dependencies | Static CSP and assets, secret/history review, MIT and upstream notices; automated Supabase advisors clear at last check | Legacy private-prototype dependency upgrades still under verification; independent security audit |
+| Privacy / support | Current Render policy and help describe optional encryption and device-only limits | Operator/jurisdiction/retention review before broader account release |
+| Release | GitHub development branch and explicit Render deployments; verified app files and recovery-aware update path | Production acceptance evidence and rollback drill. Repository remains private |
 
-See RELEASE-REVIEW.md and release/gates.json. `pnpm check:release` intentionally fails while required evidence is pending. A zero-bug guarantee is not claimed. No public launch, Vercel production deployment or app-store release has been represented as completed.
+Email/password registration is the owner's preferred main flow. Registered users are visible only to authorized operators in Supabase Authentication → Users. Passwords must never be exposed in an owner-facing dashboard or copied into Minimal records.
+
+The remaining external dependencies cannot be marked complete from source tests alone. No paid service, sender domain or independent audit has been purchased. Native app-store distribution is outside the current installable-browser-app release.

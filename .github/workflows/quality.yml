@@ -51,3 +51,11 @@ jobs:
       - run: node vercel-beta/test.mjs
       - run: node render-beta/build.mjs
       - run: node render-beta/test.mjs
+
+      - run: npm ci --prefix qa --ignore-scripts --no-audit
+      - run: node tests/device-database.mjs
+        env:
+          MINIMAL_IDB_TEST_PACKAGE: ${{ github.workspace }}/qa/node_modules/fake-indexeddb
+      - run: node tests/local-vault.mjs
+        env:
+          MINIMAL_IDB_TEST_PACKAGE: ${{ github.workspace }}/qa/node_modules/fake-indexeddb

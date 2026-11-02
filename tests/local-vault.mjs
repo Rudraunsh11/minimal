@@ -1,0 +1,27 @@
+import assert from 'node:assert/strict';
+import {readFile} from 'node:fs/promises';
+import vm from 'node:vm';
+import {webcrypto} from 'node:crypto';
+import {createRequire} from 'node:module';
+const req=createRequire(import.meta.url),{IDBFactory}=req(process.env.MINIMAL_IDB_TEST_PACKAGE||'fake-indexeddb');
+const c=vm.createContext({crypto:webcrypto,TextEncoder,TextDecoder,structuredClone,Uint8Array,ArrayBuffer,btoa,atob,setTimeout,clearTimeout});
+for(const file of ['public/device-database.js','render-beta/local-vault.js','render-beta/dist/schema.js'])vm.runInContext(await readFile(new URL('../'+file,import.meta.url),'utf8'),c);
+const V=c.MinimalLocalVault,D=c.MinimalDatabase,validate=x=>c.MinimalSchema.validateState(x),empty=()=>validate({version:1,tasks:[],notes:[],events:[],foods:[],library:[],water:[],workouts:[],habits:[],checks:{},settings:{name:'',waterGoal:2000}}),data=empty();
+data.notes.push({id:'private-note',title:'Private test title',body:'Synthetic private text must never appear on disk',updated:new Date().toISOString()});
+const pass='Synthetic passphrase only 2026!',recovery=V.recoveryCode(),session=await V.create('minimal.life.v1',pass,recovery,validate);
+const box=await session.seal(data),other=await session.seal(data);assert.notEqual(box.payload.iv,other.payload.iv);assert.ok(!JSON.stringify(box).includes('Synthetic private text'));assert.equal(JSON.stringify(await session.open(box)),JSON.stringify(data));
+const unlocked=await V.unlock(box,pass,'pass',validate);assert.equal(JSON.stringify(await unlocked.open(box)),JSON.stringify(data));
+const recovered=await V.unlock(box,recovery,'recovery',validate);assert.equal(JSON.stringify(await recovered.open(box)),JSON.stringify(data));
+await assert.rejects(V.unlock(box,'wrong passphrase here','pass',validate));await assert.rejects(V.unlock(box,V.recoveryCode(),'recovery',validate));
+for(const change of [b=>b.payload.ciphertext=(b.payload.ciphertext[0]==='A'?'B':'A')+b.payload.ciphertext.slice(1),b=>b.iterations=999999999,b=>b.profile='other',b=>b.pass.salt='AAAA',b=>b.id='bad']){const tamper=structuredClone(box);change(tamper);await assert.rejects(V.unlock(tamper,pass,'pass',validate))}
+const cross=await V.create('minimal.practice.v1',pass,V.recoveryCode(),validate);await assert.rejects(cross.open(box));session.lock();await assert.rejects(session.open(box));await assert.rejects(session.seal(data));
+const factory=new IDBFactory(),raw=await D.connect(factory,{name:'vault-test'}),key='minimal.life.v1';let row=await raw.write(key,data,null);const newer=structuredClone(data);newer.settings.name='Synthetic latest';row=await raw.write(key,newer,row.revision);
+const disk=V.adapter(raw,key,validate);const secured=await disk.enable(newer,row.revision,pass,recovery);assert.equal(secured.data.settings.name,'Synthetic latest');assert.equal(JSON.stringify(secured.previous),JSON.stringify(data));assert.ok(V.isSealed((await raw.read(key)).data));assert.ok(V.isSealed((await raw.read(key)).previous));assert.ok(!JSON.stringify(await raw.read(key)).includes('Synthetic private text'));
+const backup=await disk.encryptedBackup();await assert.rejects(recovered.open(backup));
+const fresh=V.adapter(raw,key,validate);await assert.rejects(fresh.read(key));await fresh.unlock(recovery,'recovery');assert.equal((await fresh.read(key)).data.settings.name,'Synthetic latest');
+const changed=structuredClone(newer);changed.settings.name='After encryption';const saved=await disk.write(key,changed,secured.revision);assert.equal(saved.previous.settings.name,'Synthetic latest');await assert.rejects(fresh.write(key,data,secured.revision),e=>e.name==='ConflictError');
+const failing={read:raw.read,clear:raw.clear,close(){},write:async()=>{throw Error('quota test')}};const failedAdapter=V.adapter(failing,key,validate);await failedAdapter.unlock(pass);const writer=D.writer({db:failedAdapter,key,revision:saved.revision,validate});writer.stage(newer);assert.equal(await writer.drain(),false);assert.equal((await disk.read(key)).data.settings.name,'After encryption');
+const restore=await V.unlock(backup,recovery,'recovery',validate),restored=await restore.open(backup);const raw2=await D.connect(new IDBFactory(),{name:'fresh-device'});await raw2.write(key,restored,null);assert.equal((await raw2.read(key)).data.settings.name,'Synthetic latest');
+const target=V.adapter(raw2,key,validate),r=await raw2.read(key);await assert.rejects(target.enable(restored,r.revision-1,pass,recovery));assert.ok(!V.isSealed((await raw2.read(key)).data));
+await disk.clear([key]);assert.equal((await raw.read(key)).deleted,true);assert.equal((await raw.read(key)).data,null);assert.equal((await raw.read(key)).previous,null);disk.lock();fresh.lock();restore.lock();recovered.lock();unlocked.lock();cross.lock();raw.close();raw2.close();
+console.log('PASS: local encryption, passphrase/recovery unlock, tamper/KDF limits, profile/key isolation, no plaintext current/previous database records, stale-write denial, quota safety, recovery into a fresh database and clear tombstone.');

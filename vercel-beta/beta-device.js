@@ -32,7 +32,8 @@ async function deviceSpace(request=false){const el=$('#device-space');try{if(!na
 const deviceRender=render;render=function(){deviceRender();if(deviceWriter)deviceMessage(deviceFailed?{error:new Error('Editing paused. Export pending changes before reloading.')}:deviceWriter.info());if(tab==='settings')void deviceSpace()};
 async function bootDevice(){
  try{
-  deviceDB=await MinimalDatabase.connect(indexedDB,{onClose:()=>lockDevice('The database connection closed. Export pending changes before reloading.')});
+  const rawDB=await MinimalDatabase.connect(indexedDB,{onClose:()=>lockDevice('The database connection closed. Export pending changes before reloading.')});
+  deviceDB=window.MinimalVaultUI?await MinimalVaultUI.connect(rawDB):rawDB;
   deviceRow=await MinimalDatabase.initialize(deviceDB,KEY,()=>{
    const raw=localStorage.getItem(KEY);if(raw!==null)return {data:JSON.parse(raw),source:KEY};
    const initial=DEMO?practiceState():defaults();

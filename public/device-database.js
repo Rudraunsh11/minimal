@@ -13,8 +13,8 @@
    req.onsuccess=()=>{clearTimeout(timer);if(done){req.result.close();return}done=true;const db=req.result;db.onversionchange=()=>{db.close();onClose()};db.onclose=onClose;
     function transaction(mode,run){return new Promise((ok,no)=>{let result,failure;const tx=db.transaction('records',mode),store=tx.objectStore('records');tx.oncomplete=()=>ok(result);tx.onabort=()=>no(failure||tx.error||new Error('Database write was interrupted.'));tx.onerror=()=>{};try{run(store,x=>result=x,e=>{failure=e;tx.abort()})}catch(e){failure=e;tx.abort()}})}
     const read=key=>transaction('readonly',(store,set)=>{const r=store.get(key);r.onsuccess=()=>set(r.result||null)});
-    const write=(key,data,expected,{previous=true,migratedFrom=null}={})=>transaction('readwrite',(store,set,fail)=>{
-     const r=store.get(key);r.onsuccess=()=>{const old=r.result;if((old?.revision??null)!==expected){fail(conflict());return}const row={key,revision:(old?.revision||0)+1,data:clone(data),previous:previous&&old?.data?clone(old.data):null,updatedAt:Date.now(),deleted:false,migratedFrom:old?.migratedFrom||migratedFrom};store.put(row);set(row)};
+    const write=(key,data,expected,{previous=true,migratedFrom=null,previousData=undefined}={})=>transaction('readwrite',(store,set,fail)=>{
+     const r=store.get(key);r.onsuccess=()=>{const old=r.result;if((old?.revision??null)!==expected){fail(conflict());return}const row={key,revision:(old?.revision||0)+1,data:clone(data),previous:previousData!==undefined?clone(previousData):previous&&old?.data?clone(old.data):null,updatedAt:Date.now(),deleted:false,migratedFrom:old?.migratedFrom||migratedFrom};store.put(row);set(row)};
     });
     const clear=keys=>transaction('readwrite',(store,set)=>{for(const key of keys){const r=store.get(key);r.onsuccess=()=>store.put({key,revision:(r.result?.revision||0)+1,data:null,previous:null,deleted:true,updatedAt:Date.now()})}set(true)});
     resolve({read,write,clear,close:()=>db.close()});
