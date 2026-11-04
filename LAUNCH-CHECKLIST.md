@@ -1,11 +1,11 @@
-# Minimal release checklist — 4 November 2026
+# Minimal release checklist — 5 November 2026
 
 This checklist covers the public Render device app and the planned Supabase account service. The earlier private Sites checklist is preserved in LAUNCH-CHECKLIST-SITES-20261018.md. Its old Vercel, 900 KB and private-hosted account assumptions do not describe the current Render release.
 
 | Area | Implementation / evidence | Remaining acceptance |
 | --- | --- | --- |
 | Device saving | IndexedDB, 20 MB plaintext record budget, revision checks, save failures/retry, previous save; tests/device-database.mjs | Physical low-memory devices, eviction and multi-tab acceptance |
-| Installation / offline | Verified app shell, manifest/icons, explicit multi-window-safe update; tests/pwa.mjs and pwa-client.mjs | Actual iPhone/Android installation, airplane mode, reopening |
+| Installation / offline | Verified app shell, manifest/icons, explicit multi-window-safe update; Safari/Chrome phone and computer guides, Google/in-app fallback, copy link; CHECKPOINT-06-INSTALL-GUIDE.md and PWA/install-guide tests | Actual iPhone/Android installation, airplane mode, reopening |
 | Editing / navigation | Modal background lock, stable notes, activity date guards, reset-to-today, mobile navigation, history deletion; tests/ux-regression.mjs | Physical keyboard, zoom, accessibility and all-feature acceptance |
 | Food logging | Meal-based Add food, explicit edit/remove with bounded Undo, compact search, source references, adjustable portions, custom food library, unknown nutrition stays unknown; CHECKPOINT-05-FOOD-DIARY.md and food/custom/regional tests | Nutrition catalogue review; homemade dishes remain estimates; physical-device acceptance |
 | Local encryption / file recovery | Optional private storage, recovery key, encrypted backup and explicit restore; CHECKPOINT-04-LOCAL-ENCRYPTION.md | Independent crypto review and physical-device acceptance |
