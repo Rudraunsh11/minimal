@@ -30,3 +30,4 @@ await import('../supabase-foundation/auth-client-test.mjs');
 await import('../supabase-foundation/account-flow-test.mjs');
 
 await import("../tests/custom-foods.mjs");
+await import('../tests/food-diary.mjs');

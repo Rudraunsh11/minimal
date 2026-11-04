@@ -1,0 +1,11 @@
+# Food diary usability — 4 November 2026
+
+The diary now shows four named meals with their own Add food action, readable food rows, explicit Edit portion and Remove actions, and meal-level calorie totals. Selecting Add food remembers that meal through search, regional/ingredient browsing and recent-food selection. Search results show the food, serving and calories; macros remain visible in the portion preview and diary. Custom food, barcode and saved-food entry points are grouped in a disclosure rather than six competing buttons.
+
+Removal is reversible through an Undo control inside the same meal. Undo is deliberately single-use and available until the next saved change, reload or app closure. It preserves the exact removed entry, original position and nutrition snapshot, refuses duplicate IDs and does not restore into a changed state. A failed save leaves records unchanged; a failed undo remains available to retry. The UI states the limit. Existing backup/recovery features remain separate.
+
+Historical weighed amounts open in grams/millilitres when conversion to a familiar serving would create an awkward fraction. Half/quarter portions remain available. Amounts and nutrient reference values are not rounded on opening; only display values are formatted. Detailed source notes and logging-date controls remain available in disclosures. No nutrition database values, existing user records, schema, storage budget or account behavior were changed.
+
+Validation: `node render-beta/build.mjs && node render-beta/test.mjs`, including `tests/food-diary.mjs` for removal/undo, save failures, stale-state rejection, date boundaries, HTML escaping and weight/portion initialization. Local browser review exercised meal selection, two-portion recalculation, adding, editing, removing, undoing, desktop and 390px mobile layouts, plus the normal PWA Update & reopen flow preserving the practice records. This is browser simulation, not a physical phone or screen-reader audit.
+
+First-time visitors continue to open Today in dark mode with an empty personal workspace, guided-tour access, an install option and browser-only saving. The practice demo is a separate explicit mode. No public account signup or cloud sync has been activated by this change.
