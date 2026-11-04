@@ -1,0 +1,7 @@
+[
+  {
+    "path": "/*.png",
+    "name": "Cache-Control",
+    "value": "public, max-age=0, no-transform"
+  }
+]
