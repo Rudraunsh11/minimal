@@ -22,6 +22,10 @@ assert.ok(html.includes("worker-src 'self'"));assert.ok(html.includes('apple-tou
 await import('../tests/pwa.mjs');
 await import('../tests/pwa-client.mjs');
 await import('../tests/install-guide.mjs');
+const installation=await readFile(new URL('install.html',out),'utf8');
+assert.ok(installation.includes("connect-src 'none'"));assert.ok(installation.includes('<noscript>'));
+for(const [,path] of installation.matchAll(/(?:src|href)="([^"#]+)"/g)){if(path==='/'||/^https?:/.test(path))continue;assert.ok((await stat(new URL(path,out))).isFile())}
+console.log('PASS: standalone install page, no-network CSP, no-script fallback and local asset references.');
 
 await import('../tests/ux-regression.mjs');
 

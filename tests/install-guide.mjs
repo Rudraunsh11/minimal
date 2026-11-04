@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import vm from 'node:vm';
 import {readFile} from 'node:fs/promises';
-const source=await readFile(new URL('../render-beta/pwa-client.js',import.meta.url),'utf8');
+const source=await readFile(new URL('../render-beta/install-guide.js',import.meta.url),'utf8')+'\n'+await readFile(new URL('../render-beta/pwa-client.js',import.meta.url),'utf8');
 function browser({ua='',platform='',touch=0,standalone=false,copyFails=false}={}){
  const handlers={},elements=new Map(),copies=[],dialogs=[];let focused=false,selected=false;
  const element=id=>{if(!elements.has(id))elements.set(id,{value:'',textContent:'',innerHTML:'',focus(){focused=true},select(){selected=true}});return elements.get(id)};
