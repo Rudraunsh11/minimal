@@ -8,6 +8,7 @@ for(const [,js] of html.matchAll(/<script>([\s\S]*?)<\/script>/g))assert.ok(html
 for(const [,url] of html.matchAll(/<(?:script|link)\b[^>]*(?:src|href)="([^"#]+)"/g)){if(/^(https?:|data:)/.test(url))continue;assert.ok((await stat(new URL(url.split('?')[0],out))).isFile())}
 const privacy=await readFile(new URL('privacy.html',out),'utf8');assert.ok(privacy.includes('Render serves the app'));assert.ok(!privacy.includes('Vercel'));
 assert.ok(!(await readdir(out)).includes('cloud.js'));
+for(const name of ['account-flow.js','account-ui.js','account-recovery.html','account-ui-preview.html'])assert.ok(!(await readdir(out)).includes(name),'Account UI must remain staged until public acceptance: '+name);
 const headers=JSON.parse(await readFile(new URL('headers.json',import.meta.url),'utf8'));assert.ok(headers.some(h=>h.name==='Content-Security-Policy'&&h.path==='/*'));
 console.log('PASS: Render output references, exact inline CSP, browser-only policies and header configuration.');
 
@@ -26,5 +27,6 @@ await import('../tests/ux-regression.mjs');
 await import('../supabase-foundation/crypto-store-test.mjs');
 
 await import('../supabase-foundation/auth-client-test.mjs');
+await import('../supabase-foundation/account-flow-test.mjs');
 
 await import("../tests/custom-foods.mjs");

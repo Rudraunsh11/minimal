@@ -12,8 +12,15 @@
    const url=new URL(data.url);if(url.origin!=='https://'+PROJECT+'.supabase.co'||url.pathname!=='/auth/v1/authorize')throw Error('Unexpected sign-in destination.');return url.href;
   }
   async function user(){const {data,error}=await client.auth.getUser();if(error||!data?.user?.email_confirmed_at||data.user.is_anonymous)return null;return data.user}
-  let recoverySession=false;
-  const subscription=client.auth.onAuthStateChange?.(event=>{recoverySession=event==='PASSWORD_RECOVERY'?true:event==='SIGNED_OUT'?false:recoverySession});
+  // Keep recovery permission in memory and bind it to the verified account.
+  // A recovery event for one account must never authorize another account.
+  let recoveryUser=null;
+  const subscription=client.auth.onAuthStateChange?.((event,session)=>{
+   if(event==='PASSWORD_RECOVERY')recoveryUser=session?.user?.id||null;
+   else if(event==='SIGNED_OUT'||event==='SIGNED_IN'||(session?.user?.id&&session.user.id!==recoveryUser))recoveryUser=null;
+  });
+  async function ready(){const {error}=await client.auth.getSession();if(error)throw Error('The account session could not be opened. Request a new link.');}
+  async function canRecover(){await ready();const verified=await user();return !!(verified&&recoveryUser===verified.id);}
   function email(value){const e=String(value||'').trim();if(e.length>254||!/^\S+@[^\s@]+\.[^\s@]+$/.test(e))throw Error('Enter a valid email address.');return e}
   function password(value){if(typeof value!=='string'||value.length<12||value.length>1024)throw Error('Use a password of 12–1,024 characters.');return value}
   function captcha(value){if(value==null)return {};if(typeof value!=='string'||value.length>4096)throw Error('Invalid security check.');return {captchaToken:value}}
@@ -41,13 +48,16 @@
   }
   async function updatePassword(next,current){
    const verified=await user();if(!verified)throw Error('Open a valid recovery link or sign in first.');
-   if(!recoverySession&&(typeof current!=='string'||!current))throw Error('Enter your current password or use a recovery link.');
-   const {error}=await client.auth.updateUser({password:password(next),...(!recoverySession?{current_password:current}:{})});
+   const recoverySession=recoveryUser===verified.id;
+   if(!recoverySession&&(typeof current!=='string'||!current||current.length>1024))throw Error('Enter your current password or use a recovery link.');
+   const {error}=await client.auth.updateUser({password:password(next),...(!recoverySession?{currentPassword:current}:{})});
    if(error)throw Error('The password was not updated. Reopen a valid reset link or check your current password.');
-   recoverySession=false;await signOut();return {message:'Password updated. Sign in again.'};
+   recoveryUser=null;
+   try{await signOut();return {message:'Password updated. Sign in again.',signedOut:true};}
+   catch{return {message:'Your password was updated, but sign-out could not be confirmed. Retry sign-out before leaving this device.',signedOut:false};}
   }
   async function signOut(){const {error}=await client.auth.signOut({scope:'global'});if(error)throw Error('Sign-out was not confirmed. Please retry.');}
-  return {client,google,user,signOut,signUp,signIn,resendConfirmation,requestReset,updatePassword,dispose(){subscription?.data?.subscription?.unsubscribe?.()}};
+  return {client,google,user,ready,canRecover,signOut,signUp,signIn,resendConfirmation,requestReset,updatePassword,dispose(){recoveryUser=null;subscription?.data?.subscription?.unsubscribe?.()}};
  }
  root.MinimalCloudAuth={create};
 })(globalThis);

@@ -78,3 +78,15 @@ No paid plan, domain, email service or extra database has been purchased.
 Supabase's default sender is limited to project-team addresses and is unsuitable for public signup. Configure a verified production sender, then verify confirmation, resend, forgotten-password delivery, expired links, denied sessions, throttling and two real users before activation. Do not disable confirmation to bypass email delivery. Authorized operators can view registrations in Supabase Authentication → Users; passwords must never be readable.
 
 Production recovery return URL: `https://minimal-rudraunsh.onrender.com/account-recovery.html`. That page and its SDK integration must be implemented and reviewed before enabling the adapter. The account password must not silently become the private-storage passphrase. Recovery of one does not recover the other.
+
+## Account screens checkpoint — 4 November 2026
+
+`account-flow.js` and `account-ui.js`/`.css` now provide staged signup, signin, confirmation resend, reset request and password-change screens. They are **not loaded by the public app**. The UI has explicit labels, password-manager autocomplete, password visibility controls, 44px controls, keyboard focus, live feedback and a duplicate-submit guard. Passwords are removed from the inputs at submission and never enter flow state or app record storage. No cloud-store adapter is imported or called by these screens.
+
+The Auth adapter now uses the documented SDK `currentPassword` option (not the HTTP wire field `current_password`). Recovery authorization is bound to the verified account and cleared on sign-in/account changes. A successful password update followed by failed sign-out is reported as partial success so users do not mistakenly retry an already changed password. Account password changes do not affect private-storage encryption.
+
+`qa/account-ui-preview.html` uses synthetic adapters, denies all network connections with CSP and is not copied to the public build. It creates no accounts and sends no email. `node supabase-foundation/account-flow-test.mjs` tests duplicate submits, secret-free state, account switching/recovery checks, confirmation matching and sign-out failures. This is not real email-delivery or device acceptance.
+
+The current adapter deliberately keeps Auth session and PKCE verifier storage tab-scoped. Email links must return to the originating browser tab; ordinary email clients often open another tab or another browser. **Before public activation, implement and test a robust cross-tab/email-code confirmation strategy**, with bounded verifier lifetime and without sharing access/refresh tokens in localStorage. Do not present same-tab instructions alone as a completed public recovery experience. Recovery reload/expired-link handling also needs end-to-end tests.
+
+Email-service setup: Brevo signup has reached the owner-email verification screen. SMTP is not configured. Keep confirmation enabled and public account UI disabled until verified sender delivery, abuse controls, account isolation and two-user recovery tests pass.
