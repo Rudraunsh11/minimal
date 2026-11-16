@@ -10,7 +10,10 @@ const privacy=await readFile(new URL('privacy.html',out),'utf8');assert.ok(priva
 assert.ok(!(await readdir(out)).includes('cloud.js'));
 for(const name of ['account-flow.js','account-ui.js','account-recovery.html','account-ui-preview.html'])assert.ok(!(await readdir(out)).includes(name),'Account UI must remain staged until public acceptance: '+name);
 const headers=JSON.parse(await readFile(new URL('headers.json',import.meta.url),'utf8'));assert.ok(headers.some(h=>h.name==='Content-Security-Policy'&&h.path==='/*'));
-console.log('PASS: Render output references, exact inline CSP, browser-only policies and header configuration.');
+// The frame guard must load in <head>, before any app script, and be part of the verified offline shell.
+assert.ok(html.indexOf('<script src="frame-guard.js"></script>')>0&&html.indexOf('<script src="frame-guard.js"></script>')<html.indexOf('</head>'));assert.ok((await readFile(new URL('frame-guard.js',out),'utf8')).includes('window.top===window.self'));assert.ok(JSON.parse(await readFile(new URL('pwa-release.json',out),'utf8')).files.some(f=>f.path==='frame-guard.js'));
+{const {default:vm}=await import('node:vm'),guard=await readFile(new URL('frame-guard.js',out),'utf8');const run=(top,origin)=>{const style={};const win={location:{origin:'https://app.example'}};win.self=win;win.top=top==='self'?win:top==='same'?{location:{origin:'https://app.example'}}:{get location(){throw Error('cross-origin')}};vm.runInNewContext(guard,{window:win,document:{documentElement:{style:{setProperty:(k,v,p)=>{style[k]=v+'|'+p}}}}});return {hidden:style.display==='none|important',flag:win.minimalFramed===true}};assert.deepEqual(run('self'),{hidden:false,flag:false});assert.deepEqual(run('same'),{hidden:false,flag:false});assert.deepEqual(run('cross'),{hidden:true,flag:true});}
+console.log('PASS: Render output references, exact inline CSP, browser-only policies and header configuration; frame guard hides the app only inside a cross-origin frame.');
 
 const schema=await readFile(new URL('schema.js',out),'utf8'),device=await readFile(new URL('beta-device.js',out),'utf8'),focus=await readFile(new URL('focus.js',out),'utf8');
 assert.ok(schema.includes('MAX_BYTES=20000000'));assert.ok(!schema.includes('900 KB'));assert.ok(!schema.includes('20 MB account limit'));
