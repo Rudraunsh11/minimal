@@ -1,6 +1,8 @@
 name: Release quality checks
 on:
   pull_request:
+  push:
+    branches: [main]
   workflow_dispatch:
 permissions:
   contents: read
@@ -51,6 +53,8 @@ jobs:
       - run: node vercel-beta/test.mjs
       - run: node render-beta/build.mjs
       - run: node render-beta/test.mjs
+      # Committed CSP and header files must match what the builds generate.
+      - run: git diff --exit-code -- vercel.json vercel-beta/vercel.json render-beta/headers.json
 
       - run: npm ci --prefix qa --ignore-scripts --no-audit
       - run: node tests/device-database.mjs

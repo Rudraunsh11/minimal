@@ -52,6 +52,10 @@ Sites source: 250c243263b338d5cc727b841a791e0023cfe4d2. Site identity, credentia
 
 Run a static server on port 8765 at the root to view the device-only frontend at http://127.0.0.1:8765/. Its saving is local to that browser. The account-connected local app is pnpm dev and requires applying the generated local migrations. Root frontend assets mirror public/; keep them aligned. Neither static preview nor this ZIP automatically provides a Vercel account backend.
 
+## Authors
+
+Minimal was created and is maintained by Rudraunsh Jadhav. Security and build fixes were contributed by Snehank Labade. See [AUTHORS.md](AUTHORS.md).
+
 ## Copyright
 
 Copyright (c) 2026 Rudraunsh Jadhav. See [COPYRIGHT.md](COPYRIGHT.md). Third-party materials retain their own notices and license terms.

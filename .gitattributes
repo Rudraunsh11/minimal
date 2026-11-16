@@ -1,0 +1,4 @@
+# The builds hash file contents (CSP script hashes, offline-release integrity),
+# so every checkout must use the same line endings as the committed files.
+* text=auto eol=lf
+*.png binary

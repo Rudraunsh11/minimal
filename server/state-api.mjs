@@ -1,7 +1,7 @@
 import '../public/schema.js';
 import {archiveApi} from './archive-api.mjs';
 import {recoveryApi} from './recovery-api.mjs';
-import {MAX_INITIAL_ACCOUNTS,DAILY_REQUEST_BUDGET} from './limits.mjs';
+import {MAX_INITIAL_ACCOUNTS,DAILY_REQUEST_BUDGET,DAILY_ACCOUNT_BUDGET} from './limits.mjs';
 const schema=globalThis.MinimalSchema;
 const json=(data,status=200,extra={})=>new Response(JSON.stringify(data),{status,headers:{'Content-Type':'application/json','Cache-Control':'no-store, private','X-Content-Type-Options':'nosniff',...extra}});
 class BodyError extends Error{constructor(status){super('Invalid body');this.status=status}}
@@ -32,10 +32,18 @@ export async function stateApi(request,db,userId){
  const expectedAccount=request.headers.get('x-minimal-account');
  if(expectedAccount!==null&&expectedAccount!==userId)return json({error:'The signed-in account changed. Reload to continue.',code:'ACCOUNT_CHANGED'},409);
  if(write&&!expectedAccount)return json({error:'Confirm the account before changing records.',code:'ACCOUNT_REQUIRED'},428);
- const now=Date.now(),windowStart=Math.floor(now/60000),kind=write?'write':'read';
- if(!await allow(db,'global:daily',Math.floor(now/86400000),DAILY_REQUEST_BUDGET))return json({error:'The daily request budget has been reached. Your device copy is preserved. Try again after 00:00 UTC.'},429,{'Retry-After':String(Math.ceil((86400000-now%86400000)/1000))});
- if(recovery&&(!await allow(db,'global:recovery',windowStart,10)||!await allow(db,'user:'+userId+':recovery',windowStart,3)))return json({error:'Please wait before another full backup or restore.'},429,{'Retry-After':'60'});
- if(!await allow(db,'global:'+kind,windowStart,write?300:1200)||!await allow(db,'user:'+userId+':'+kind,windowStart,write?60:120))return json({error:'Too many requests. Wait briefly before trying again.'},429,{'Retry-After':String(60-Math.floor(now/1000)%60)});
+ const now=Date.now(),windowStart=Math.floor(now/60000),dayStart=Math.floor(now/86400000),kind=write?'write':'read';
+ const untilMinute=String(60-Math.floor(now/1000)%60),untilMidnight=String(Math.ceil((86400000-now%86400000)/1000));
+ // Per-account limits are charged first. A request refused here returns before
+ // any shared counter moves, so one account's rejected requests can never spend
+ // the budgets every other account depends on. The per-account daily cap bounds
+ // what one account can spend while staying inside its per-minute limits.
+ if(!await allow(db,'user:'+userId+':'+kind,windowStart,write?60:120))return json({error:'Too many requests. Wait briefly before trying again.'},429,{'Retry-After':untilMinute});
+ if(recovery&&!await allow(db,'user:'+userId+':recovery',windowStart,3))return json({error:'Please wait before another full backup or restore.'},429,{'Retry-After':'60'});
+ if(!await allow(db,'user:'+userId+':daily',dayStart,DAILY_ACCOUNT_BUDGET))return json({error:'This account has reached its daily request budget. Your device copy is preserved. Try again after 00:00 UTC.'},429,{'Retry-After':untilMidnight});
+ if(!await allow(db,'global:daily',dayStart,DAILY_REQUEST_BUDGET))return json({error:'The daily request budget has been reached. Your device copy is preserved. Try again after 00:00 UTC.'},429,{'Retry-After':untilMidnight});
+ if(recovery&&!await allow(db,'global:recovery',windowStart,10))return json({error:'Please wait before another full backup or restore.'},429,{'Retry-After':'60'});
+ if(!await allow(db,'global:'+kind,windowStart,write?300:1200))return json({error:'Too many requests. Wait briefly before trying again.'},429,{'Retry-After':untilMinute});
  if(recovery)return recoveryApi(request,db,userId,readBounded);
  if(archival)return archiveApi(request,db,userId,readBounded);
  if(method==='GET'){
