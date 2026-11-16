@@ -12,7 +12,7 @@
     {"name":"Privacy/help implementation","complete":true,"evidence":"public/privacy.html"},
     {"name":"Public privacy/operator approval","complete":false,"reason":"Jurisdictions, operator details and public disclosures require final review."},
     {"name":"Real iPhone/Android/Safari and assistive technology QA","complete":false,"reason":"Local browser testing does not substitute for this evidence."},
-    {"name":"All-dependency security gate","complete":false,"reason":"GHSA-vfj7-8cjw-p6xm in build dependency braces 3.0.3; upstream reports no patched release."},
+    {"name":"All-dependency security gate","complete":false,"reason":"pnpm audit --audit-level=high passes after the 16 November 2026 dependency updates. Two low and four moderate advisories remain in fast-uri, minimatch and satori."},
     {"name":"Vercel account service migration","complete":false,"reason":"Current trusted Sites identity and D1 service are not Vercel-compatible. Deployment choice and connection pending."},
     {"name":"Final audience/domain/load/rollback acceptance","complete":false,"reason":"Current site remains owner-private. No public/native store launch accepted."},
     {"name":"Native app signing, testing and store submission","complete":false,"reason":"No signed iOS/Android app package or store developer account configuration."}
